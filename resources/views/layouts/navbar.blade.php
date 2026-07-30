@@ -19,8 +19,8 @@
                 @endif
             </ul>
         </div>
-        <a href="{{ route('dashboard') }}" class="font-bold text-lg text-rose-600 tracking-wider">
-            POS<span class="text-slate-800">RIDA</span>
+        <a href="{{ route('dashboard') }}" class="font-bold text-lg text-slate-800 tracking-wider">
+            TOKO<span class="text-rose-600">GO</span>
         </a>
     </div>
 
