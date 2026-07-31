@@ -14,6 +14,7 @@
                 
                 <!-- Menu Khusus Admin (Mobile) -->
                 @if(Auth::user() && Auth::user()->role->name === 'admin')
+                    <li><a href="{{ route('jenis.index') }}" class="{{ request()->routeIs('jenis*') ? 'active bg-rose-50 text-rose-600' : '' }}">Jenis</a></li>
                     <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'active bg-rose-50 text-rose-600' : '' }}">Users</a></li>
                     <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'active bg-rose-50 text-rose-600' : '' }}">Rekap Laporan</a></li>
                 @endif
@@ -30,9 +31,10 @@
             <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Dashboard</a></li>
             <li><a href="{{ route('produk') }}" class="{{ request()->routeIs('produk*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Produk</a></li>
             <li><a href="{{ route('penjualan.index') }}" class="{{ request()->routeIs('penjualan*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Penjualan</a></li>
-            
+
             <!-- Menu Khusus Admin (Desktop) -->
             @if(Auth::user() && Auth::user()->role->name === 'admin')
+                <li><a href="{{ route('jenis.index') }}" class="{{ request()->routeIs('jenis*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Jenis</a></li>
                 <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Users</a></li>
                 <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Rekap Laporan</a></li>
             @endif
@@ -46,7 +48,6 @@
             <div class="text-[10px] text-rose-600 font-semibold uppercase tracking-wider">{{ Auth::user()->role->name ?? '-' }}</div>
         </div>
 
-        <!-- Tombol Logout -->
         <button type="button" onclick="openLogoutModal()" class="btn btn-sm bg-slate-100 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 border-none text-slate-700 font-semibold rounded-xl">
             Logout
         </button>
@@ -80,7 +81,6 @@
     </div>
 </div>
 
-<!-- Script untuk Interaksi Modal -->
 <script>
     function openLogoutModal() {
         const modal = document.getElementById('logoutModal');

@@ -55,6 +55,22 @@
                         class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-rose-50 file:text-rose-600 hover:file:bg-rose-100">
                 </div>
 
+                <!-- Input Jenis Produk -->
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Jenis Produk</label>
+                    <select name="jenis_id" id="jenis_id" required class="w-full px-4 py-2.5 rounded-xl border @error('jenis_id') border-rose-500 @else border-slate-200 @enderror focus:outline-none focus:border-rose-500 text-sm bg-white">
+                        <option value="" disabled>-- Pilih Jenis Produk --</option>
+                        @foreach ($data_jenis as $jenis)
+                            <option value="{{ $jenis->id }}" {{ old('jenis_id', $product->jenis_id) == $jenis->id ? 'selected' : '' }}>
+                                {{ $jenis->nama_jenis }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('jenis_id')
+                        <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
+                    @enderror
+                </div>
+
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Nama
                         Produk</label>

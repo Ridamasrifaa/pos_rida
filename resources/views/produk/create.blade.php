@@ -39,6 +39,23 @@
                 @enderror
             </div>
 
+
+      <!-- Input Jenis Produk (Disamakan dengan gaya Tailwind lainnya) -->
+<div>
+    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Jenis Produk</label>
+    <select name="jenis_id" id="jenis_id" required class="w-full px-4 py-2.5 rounded-xl border @error('jenis_id') border-rose-500 @else border-slate-200 @enderror focus:outline-none focus:border-rose-500 text-sm bg-white">
+        <option value="" selected disabled>-- Pilih Jenis Produk --</option>
+        @foreach ($data_jenis as $jenis)
+            <option value="{{ $jenis->id }}" {{ old('jenis_id') == $jenis->id ? 'selected' : '' }}>
+                {{ $jenis->nama_jenis }}
+            </option>
+        @endforeach
+    </select>
+    @error('jenis_id')
+        <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
+    @enderror
+</div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Input Harga Beli -->
                 <div>

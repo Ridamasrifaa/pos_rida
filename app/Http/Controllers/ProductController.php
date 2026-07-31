@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produk; 
+use App\Models\Jenis;
 use Illuminate\Http\Request;
 use App\Http\Requests\Produk\StoreRequest;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,8 @@ class ProductController extends Controller
     {
         $search = $request->input('search');
 
-        $products = Produk::when($search, function ($query, $search) {
+        $products = Produk::with('jenis')
+            ->when($search, function ($query, $search) {
                 return $query->where('nama', 'like', "%{$search}%");
             })
             ->latest()
@@ -24,6 +26,8 @@ class ProductController extends Controller
 
         if ($request->ajax()) {
             $html = '';
+            $isAdmin = Auth::user() && Auth::user()->role->name === 'admin';
+
             if ($products->count() > 0) {
                 foreach ($products as $index => $product) {
                     $no = $products->firstItem() + $index;
@@ -42,6 +46,7 @@ class ProductController extends Controller
                     }
 
                     $stokClass = $product->stok > 5 ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
+                    $namaJenis = $product->jenis->nama_jenis ?? '-';
                     
                     $html .= '<tr class="hover:bg-slate-50/50 transition">
                         <td class="py-3.5 px-4 font-semibold text-slate-800">' . $no . '</td>
@@ -53,21 +58,23 @@ class ProductController extends Controller
                     }
                     $html .= '</td>
                         <td class="py-3.5 px-4"><div class="font-semibold text-slate-800">' . $product->nama . '</div></td>
+                        <td class="py-3.5 px-4"><span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">' . $namaJenis . '</span></td>
                         <td class="py-3.5 px-4 text-slate-600 font-medium">Rp ' . number_format($product->harga_beli ?? 0, 0, ',', '.') . '</td>
                         <td class="py-3.5 px-4 text-slate-600 font-medium">Rp ' . number_format($product->harga_jual ?? 0, 0, ',', '.') . '</td>
                         <td class="py-3.5 px-4"><span class="px-2.5 py-1 rounded-lg text-xs font-semibold ' . $stokClass . '">' . $product->stok . ' Pcs</span></td>
                         <td class="py-3.5 px-4 text-center space-x-2">
-                            <a href="' . route('produk.show', $product->id) . '" class="inline-block px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-semibold transition">Detail</a>
-                            <a href="' . route('produk.edit', $product->id) . '" class="inline-block px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold transition">Edit</a>
-                            <form action="' . route('produk.destroy', $product->id) . '" method="POST" class="inline-block" onsubmit="return confirm(\'Apakah Anda yakin akan menghapus produk ini?\');">
-                                ' . csrf_field() . method_field('DELETE') . '
-                                <button type="submit" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition">Hapus</button>
-                            </form>
-                        </td>
-                    </tr>';
+                            <a href="' . route('produk.show', $product->id) . '" class="inline-block px-3 py-1.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-xs font-semibold transition">Detail</a>';
+                    
+                    // Tombol Edit & Hapus hanya muncul untuk Admin
+                    if ($isAdmin) {
+                        $html .= '<a href="' . route('produk.edit', $product->id) . '" class="inline-block px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold transition">Edit</a>
+                            <button type="button" onclick="openDeleteModal(\'' . route('produk.destroy', $product->id) . '\', \'' . $product->nama . '\')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition inline-block">Hapus</button>';
+                    }
+
+                    $html .= '</td></tr>';
                 }
             } else {
-                $html .= '<tr><td colspan="7" class="text-center py-8 text-slate-400 text-xs">Data produk tidak tersedia.</td></tr>';
+                $html .= '<tr><td colspan="8" class="text-center py-8 text-slate-400 text-xs">Data produk tidak tersedia.</td></tr>';
             }
 
             return response()->json([
@@ -82,15 +89,25 @@ class ProductController extends Controller
 
     public function create()
     {
-        return view('produk.create');
+        if (Auth::user()->role->name !== 'admin') {
+            return redirect()->route('produk')->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk menambah produk.');
+        }
+
+        $data_jenis = Jenis::all(); 
+        return view('produk.create', compact('data_jenis'));
     }
 
     public function store(StoreRequest $request)
     {
+        if (Auth::user()->role->name !== 'admin') {
+            return redirect()->route('produk')->with('error', 'Akses ditolak.');
+        }
+
         $dataReq = $request->validated();
 
         $data = [
             'user_id'    => Auth::id(),
+            'jenis_id'   => $dataReq['jenis_id'] ?? null,
             'nama'       => $dataReq['nama'],
             'harga_beli' => $dataReq['harga_beli'],
             'harga_jual' => $dataReq['harga_jual'],
@@ -110,14 +127,24 @@ class ProductController extends Controller
 
     public function edit(Produk $product)
     {
-        return view('produk.edit', compact('product'));
+        if (Auth::user()->role->name !== 'admin') {
+            return redirect()->route('produk')->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk mengubah produk.');
+        }
+
+        $data_jenis = Jenis::all(); 
+        return view('produk.edit', compact('product', 'data_jenis'));
     }
 
     public function update(UpdateRequest $request, $id)
     {
+        if (Auth::user()->role->name !== 'admin') {
+            return redirect()->route('produk')->with('error', 'Akses ditolak.');
+        }
+
         $product = Produk::findOrFail($id);
 
         $data = [
+            'jenis_id'   => $request->jenis_id,
             'nama'       => $request->nama,
             'harga_beli' => $request->harga_beli,
             'harga_jual' => $request->harga_jual,
@@ -125,13 +152,11 @@ class ProductController extends Controller
         ];
 
         if ($request->hasFile('foto')) {
-            // Hapus file foto lama dari storage jika ada
             if ($product->foto) {
                 $oldPath = str_replace('storage/', '', $product->foto);
                 Storage::disk('public')->delete($oldPath);
             }
 
-            // Simpan foto baru menggunakan store laravel (sama seperti method store)
             $data['foto'] = $request->file('foto')->store('products', 'public');
         }
 
@@ -140,11 +165,14 @@ class ProductController extends Controller
         return redirect()->route('produk')->with('success', 'Produk berhasil diperbarui!');
     }
 
-public function destroy(string $id)
+    public function destroy(string $id)
     {
+        if (Auth::user()->role->name !== 'admin') {
+            return redirect()->route('produk')->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk menghapus produk.');
+        }
+
         $product = Produk::findOrFail($id);
 
-        // CEK APAKAH PRODUK SUDAH PERNAH MASUK KE TABEL ITEM PENJUALAN
         $isUsedInTransaction = \Illuminate\Support\Facades\DB::table('item_penjualans')
             ->where('produks_id', $id)
             ->exists();
@@ -153,7 +181,6 @@ public function destroy(string $id)
             return redirect()->route('produk')->with('error', 'Produk ini tidak dapat dihapus karena sudah tercatat dalam riwayat transaksi penjualan.');
         }
 
-        // Hapus file foto terkait jika produk dihapus
         if ($product->foto) {
             $oldPath = str_replace('storage/', '', $product->foto);
             Storage::disk('public')->delete($oldPath);

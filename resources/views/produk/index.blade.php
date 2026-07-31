@@ -6,7 +6,7 @@
 
 <div class="w-full max-w-6xl mx-auto space-y-6 font-sans py-6 px-4">
 
-    <!-- Header Halaman & Tombol Tambah -->
+    <!-- Header Halaman & Tombol Tambah (Hanya untuk Admin) -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
         <div class="flex items-center gap-4">
             <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl shadow-inner">
@@ -20,6 +20,7 @@
             </div>
         </div>
         
+        @if(Auth::user() && Auth::user()->role->name === 'admin')
         <div>
             <a href="{{ route('produk.create') }}" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-semibold shadow-sm transition flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
@@ -28,9 +29,10 @@
                 Tambah Produk Baru
             </a>
         </div>
+        @endif
     </div>
 
-    <!-- Alert Notifikasi Gagal (Error) -->
+    <!-- Alert / Modal Notifikasi Gagal Hapus (Hanya muncul jika ada session error dari Controller saat hapus) -->
     @if(session('error'))
         <div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 flex hidden">
             <div class="bg-white rounded-3xl p-6 max-w-sm w-full mx-4 shadow-xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
@@ -41,7 +43,7 @@
                 </div>
                 <div class="text-center space-y-1">
                     <h3 class="font-bold text-lg text-slate-800">Tidak Dapat Menghapus Produk</h3>
-                    <p class="text-sm text-slate-500">Produk ini tidak dapat dihapus karena sudah tercatat dalam riwayat transaksi penjualan.</p>
+                    <p class="text-sm text-slate-500">{{ session('error') }}</p>
                 </div>
                 <div class="pt-2">
                     <button type="button" onclick="closeErrorModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-semibold transition">
@@ -52,7 +54,6 @@
         </div>
 
         <script>
-            // Otomatis buka modal error saat halaman dimuat jika ada session error
             document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('errorModal').classList.remove('hidden');
             });
@@ -86,6 +87,7 @@
                         <th scope="col" class="py-3 px-4">No</th>
                         <th scope="col" class="py-3 px-4">Foto</th>
                         <th scope="col" class="py-3 px-4">Nama Produk</th>
+                        <th scope="col" class="py-3 px-4">Jenis</th>
                         <th scope="col" class="py-3 px-4">Harga Beli</th>
                         <th scope="col" class="py-3 px-4">Harga Jual</th>
                         <th scope="col" class="py-3 px-4">Stok</th>
@@ -117,6 +119,11 @@
                             <td class="py-3.5 px-4">
                                 <div class="font-semibold text-slate-800">{{ $product->nama }}</div>
                             </td>
+                            <td class="py-3.5 px-4">
+                                <span class="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-semibold">
+                                    {{ $product->jenis->nama_jenis ?? '-' }}
+                                </span>
+                            </td>
                             <td class="py-3.5 px-4 text-slate-600 font-medium">
                                 Rp {{ number_format($product->harga_beli ?? 0, 0, ',', '.') }}
                             </td>
@@ -133,19 +140,21 @@
                                     Detail
                                 </a>
 
-                                <a href="{{ route('produk.edit', $product->id) }}" class="inline-block px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold transition">
-                                    Edit
-                                </a>
+                                <!-- Tombol Edit & Hapus hanya tampil jika user yang login adalah Admin -->
+                                @if(Auth::user() && Auth::user()->role->name === 'admin')
+                                    <a href="{{ route('produk.edit', $product->id) }}" class="inline-block px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-semibold transition">
+                                        Edit
+                                    </a>
 
-                                <!-- Tombol Hapus memicu Modal Kustom (Tanpa confirm() Chrome) -->
-                                <button type="button" onclick="openDeleteModal('{{ route('produk.destroy', $product->id) }}', '{{ $product->nama }}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition inline-block">
-                                    Hapus
-                                </button>
+                                    <button type="button" onclick="openDeleteModal('{{ route('produk.destroy', $product->id) }}', '{{ $product->nama }}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-semibold transition inline-block">
+                                        Hapus
+                                    </button>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center py-8 text-slate-400 text-xs">Data produk tidak tersedia.</td>
+                            <td colspan="8" class="text-center py-8 text-slate-400 text-xs">Data produk tidak tersedia.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -159,7 +168,8 @@
 
 </div>
 
-<!-- Modal Konfirmasi Hapus Kustom (Tailwind Card) -->
+<!-- Modal Konfirmasi Hapus Produk (Hanya untuk Admin) -->
+@if(Auth::user() && Auth::user()->role->name === 'admin')
 <div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm hidden">
     <div class="bg-white rounded-3xl p-6 max-w-sm w-full mx-4 shadow-xl border border-slate-100 space-y-4 animate-in fade-in zoom-in duration-200">
         <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl mx-auto">
@@ -185,22 +195,20 @@
         </div>
     </div>
 </div>
+@endif
 
 <!-- Script Live Search & Modal Control -->
 <script>
-    // Fungsi Buka Modal Hapus
     function openDeleteModal(deleteUrl, productName) {
         document.getElementById('productNameTarget').innerText = '"' + productName + '"';
         document.getElementById('deleteFormTarget').action = deleteUrl;
         document.getElementById('deleteModal').classList.remove('hidden');
     }
 
-    // Fungsi Tutup Modal Hapus
     function closeDeleteModal() {
         document.getElementById('deleteModal').classList.add('hidden');
     }
 
-    // Live Search Realtime
     document.getElementById('search-input').addEventListener('input', function() {
         let query = this.value;
 

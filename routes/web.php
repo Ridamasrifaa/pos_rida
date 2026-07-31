@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PenjualanController; 
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\JenisController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -27,7 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/penjualan/{penjualan}', [PenjualanController::class, 'update'])->name('penjualan.update');
     Route::delete('/penjualan/{penjualan}', [PenjualanController::class, 'destroy'])->name('penjualan.destroy');
 
-    // --- MANAJEMEN PRODUK (Bisa diakses Admin & Kasir tanpa batasan role:admin) ---
+    // --- MANAJEMEN PRODUK (Bisa diakses Admin & Kasir) ---
     Route::get('/produk', [ProductController::class, 'index'])->name('produk');
     Route::get('/produk/create', [ProductController::class, 'create'])->name('produk.create');
     Route::post('/produk/store', [ProductController::class, 'store'])->name('produk.store');
@@ -36,7 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/produk/update/{product}', [ProductController::class, 'update'])->name('produk.update');
     Route::delete('/produk/delete/{product}', [ProductController::class, 'destroy'])->name('produk.destroy');
 
-    // --- MANAJEMEN USER (Tetap khusus Admin) ---
+    // --- MANAJEMEN USER & JENIS (Khusus Admin) ---
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [UserController::class, 'index'])->name('users');
         Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
@@ -51,5 +52,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/rekap-bulanan', [ReportController::class, 'monthlyIndex'])->name('monthly');
         Route::get('/rekap-mingguan', [ReportController::class, 'weeklyIndex'])->name('weekly');
         Route::get('/rekap-harian/{year}/{month}', [ReportController::class, 'dailyDetail'])->name('daily');
+
+        Route::get('/rekap-bulanan/pdf/{year}', [ReportController::class, 'downloadMonthlyPdf'])->name('monthly.pdf');
+        Route::get('/rekap-mingguan/pdf/{year}', [ReportController::class, 'downloadWeeklyPdf'])->name('weekly.pdf');
+        Route::get('/rekap-harian/pdf/{year}/{month}', [ReportController::class, 'downloadDailyPdf'])->name('daily.pdf');
+    });
+
+    // --- MANAJEMEN JENIS (Khusus Admin) ---
+    Route::middleware(['role:admin'])->group(function () {
+        Route::resource('jenis', JenisController::class)->parameters([
+            'jenis' => 'jenis'
+        ]);
     });
 });
