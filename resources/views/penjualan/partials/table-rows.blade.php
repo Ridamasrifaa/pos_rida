@@ -1,6 +1,10 @@
 @forelse ($penjualans as $index => $penjualan)
     <tr class="hover:bg-slate-50/50 transition">
-        <td class="py-3.5 px-4 font-bold text-slate-700">{{ $penjualans->firstItem() + $index }}</td>
+        <!-- Nomor ID Transaksi -->
+        <td class="py-3.5 px-4 font-bold text-slate-700">
+            {{ $penjualan->id }}
+        </td>
+        
         <td class="py-3.5 px-4 truncate max-w-[150px]">{{ $penjualan->user->name ?? 'Unknown' }}</td>
         <td class="py-3.5 px-4 font-semibold text-slate-800">Rp {{ number_format($penjualan->total_pembayaran, 0, ',', '.') }}</td>
         <td class="py-3.5 px-4">
@@ -27,13 +31,10 @@
                         Edit
                     </a>
 
-                    <form action="{{ route('penjualan.destroy', $penjualan->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah anda yakin akan menghapus penjualan ini?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition">
-                            Hapus
-                        </button>
-                    </form>
+                    <!-- Tombol Hapus memicu Card Modal Kustom -->
+                    <button type="button" onclick="openDeleteModal('{{ route('penjualan.destroy', $penjualan->id) }}', '{{ $penjualan->id }}')" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition">
+                        Hapus
+                    </button>
                 @endif
             </div>
         </td>
