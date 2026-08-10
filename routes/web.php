@@ -2,13 +2,12 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\JenisController;
+use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PenjualanController; 
-use App\Http\Controllers\SaleController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\JenisController;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -61,7 +60,7 @@ Route::middleware('auth')->group(function () {
     // --- MANAJEMEN JENIS (Khusus Admin) ---
     Route::middleware(['role:admin'])->group(function () {
         Route::resource('jenis', JenisController::class)->parameters([
-            'jenis' => 'jenis'
+            'jenis' => 'jenis',
         ]);
     });
 });

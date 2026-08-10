@@ -152,7 +152,7 @@
     <div class="space-y-4">
         <h2 class="text-lg font-bold text-slate-900 px-1 flex items-center gap-2">
             <span class="w-3 h-3 rounded-full bg-amber-600"></span>
-            Status Inventaris Kritis
+            Peringatan Stok Barang
         </h2>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             

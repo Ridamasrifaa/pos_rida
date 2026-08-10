@@ -9,14 +9,18 @@
             </div>
             <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-white rounded-box w-52 border border-slate-100 font-medium">
                 <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active bg-rose-50 text-rose-600' : '' }}">Dashboard</a></li>
-                <li><a href="{{ route('produk') }}" class="{{ request()->routeIs('produk*') ? 'active bg-rose-50 text-rose-600' : '' }}">Produk</a></li>
-                <li><a href="{{ route('penjualan.index') }}" class="{{ request()->routeIs('penjualan*') ? 'active bg-rose-50 text-rose-600' : '' }}">Penjualan</a></li>
                 
                 <!-- Menu Khusus Admin (Mobile) -->
                 @if(Auth::user() && Auth::user()->role->name === 'admin')
+                    <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'active bg-rose-50 text-rose-600' : '' }}">Pengguna</a></li>
                     <li><a href="{{ route('jenis.index') }}" class="{{ request()->routeIs('jenis*') ? 'active bg-rose-50 text-rose-600' : '' }}">Jenis</a></li>
-                    <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'active bg-rose-50 text-rose-600' : '' }}">Users</a></li>
-                    <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'active bg-rose-50 text-rose-600' : '' }}">Rekap Laporan</a></li>
+                @endif
+
+                <li><a href="{{ route('produk') }}" class="{{ request()->routeIs('produk*') ? 'active bg-rose-50 text-rose-600' : '' }}">Produk</a></li>
+                <li><a href="{{ route('penjualan.index') }}" class="{{ request()->routeIs('penjualan*') ? 'active bg-rose-50 text-rose-600' : '' }}">Penjualan</a></li>
+                
+                @if(Auth::user() && Auth::user()->role->name === 'admin')
+                    <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'active bg-rose-50 text-rose-600' : '' }}">Laporan</a></li>
                 @endif
             </ul>
         </div>
@@ -28,20 +32,24 @@
     <!-- Bagian Tengah (Menu Desktop) -->
     <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1 gap-1 font-semibold text-sm">
-            <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Dashboard</a></li>
-            <li><a href="{{ route('produk') }}" class="{{ request()->routeIs('produk*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Produk</a></li>
-            <li><a href="{{ route('penjualan.index') }}" class="{{ request()->routeIs('penjualan*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Penjualan</a></li>
+            <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Dasbor</a></li>
 
             <!-- Menu Khusus Admin (Desktop) -->
             @if(Auth::user() && Auth::user()->role->name === 'admin')
+                <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Pengguna</a></li>
                 <li><a href="{{ route('jenis.index') }}" class="{{ request()->routeIs('jenis*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Jenis</a></li>
-                <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Users</a></li>
-                <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Rekap Laporan</a></li>
+            @endif
+
+            <li><a href="{{ route('produk') }}" class="{{ request()->routeIs('produk*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Produk</a></li>
+            <li><a href="{{ route('penjualan.index') }}" class="{{ request()->routeIs('penjualan*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Penjualan</a></li>
+
+            @if(Auth::user() && Auth::user()->role->name === 'admin')
+                <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Laporan</a></li>
             @endif
         </ul>
     </div>
 
-    <!-- Bagian Kanan (Profil & Logout) -->
+    <!-- Bagian Kanan (Profil & Keluar) -->
     <div class="navbar-end gap-3">
         <div class="text-right hidden sm:block">
             <div class="text-xs font-bold text-slate-800">{{ Auth::user()->name ?? 'User' }}</div>
@@ -49,12 +57,12 @@
         </div>
 
         <button type="button" onclick="openLogoutModal()" class="btn btn-sm bg-slate-100 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 border-none text-slate-700 font-semibold rounded-xl">
-            Logout
+            Keluar
         </button>
     </div>
 </div>
 
-<!-- Card Modal Konfirmasi Logout -->
+<!-- Kartu Modal Konfirmasi Keluar -->
 <div id="logoutModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs hidden transition-all duration-300">
     <div class="bg-white w-full max-w-sm p-6 rounded-3xl shadow-xl border border-slate-100 transform scale-95 transition-transform duration-300" id="logoutModalCard">
         <div class="text-center space-y-3">
@@ -64,7 +72,7 @@
                 </svg>
             </div>
             <h3 class="font-bold text-lg text-slate-800">Konfirmasi Keluar</h3>
-            <p class="text-xs text-slate-500">Apakah kamu yakin ingin keluar dari aplikasi POS RIDA?</p>
+            <p class="text-xs text-slate-500">Apakah kamu yakin ingin keluar dari aplikasi TOKO GO?</p>
         </div>
 
         <div class="flex items-center gap-3 mt-6">

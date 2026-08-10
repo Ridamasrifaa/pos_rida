@@ -8,7 +8,8 @@
      class="space-y-6 relative opacity-0 translate-y-4 transition-all duration-700 ease-out"
      x-init="$el.classList.remove('opacity-0', 'translate-y-4')">
 
-    <div class="flex justify-between items-center">
+    <!-- Card Header / Judul Halaman -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-slate-800">Tambah Penjualan</h1>
             <p class="text-sm text-slate-500 mt-0.5">Pilih produk di sebelah kiri untuk dimasukkan ke keranjang kasir.</p>
@@ -229,7 +230,7 @@
                 nama: p.nama,
                 harga_jual: p.harga_jual,
                 stok: p.stok,
-                foto: p.foto, // Diubah dari gambar ke foto
+                foto: p.foto,
                 tempQty: 1
             })),
             cart: [],

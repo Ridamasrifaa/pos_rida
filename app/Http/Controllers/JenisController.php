@@ -10,7 +10,7 @@ class JenisController extends Controller
 {
     public function index()
     {
-        // Muat relasi user agar bisa menampilkan nama/info admin atau kasir
+        
         $jenis = Jenis::with('user')->latest()->paginate(10);
         return view('jenis.index', compact('jenis'));
     }
@@ -26,7 +26,6 @@ class JenisController extends Controller
             'nama_jenis' => 'required|string|max:255|unique:jenis,nama_jenis',
         ]);
 
-        // Tambahkan user_id menggunakan ID user yang sedang login
         Jenis::create([
             'user_id' => Auth::id(),
             'nama_jenis' => $request->nama_jenis,
@@ -46,7 +45,6 @@ class JenisController extends Controller
             'nama_jenis' => 'required|string|max:255|unique:jenis,nama_jenis,' . $jenis->id,
         ]);
 
-        // Perbarui data termasuk user_id jika ingin diubah ke user yang sedang login, atau biarkan tetap
         $jenis->update([
             'user_id' => Auth::id(),
             'nama_jenis' => $request->nama_jenis,
@@ -56,9 +54,13 @@ class JenisController extends Controller
     }
 
     public function destroy(Jenis $jenis)
-    {
-        $jenis->delete();
-
-        return redirect()->route('jenis.index')->with('success', 'Jenis produk berhasil dihapus!');
+{
+    
+    if ($jenis->produks()->count() > 0) {
+        return redirect()->route('jenis.index')->with('error', 'Jenis produk tidak bisa dihapus karena masih digunakan oleh produk!');
     }
+
+    $jenis->delete();
+    return redirect()->route('jenis.index')->with('success', 'Jenis produk berhasil dihapus!');
+}
 }

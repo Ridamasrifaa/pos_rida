@@ -122,6 +122,29 @@
     </div>
 </div>
 
+<!-- Modal Notifikasi Error (Gagal Hapus karena Masih Dipakai Produk) -->
+@if(session('error'))
+<div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center space-y-5 transform transition-all">
+        <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+        </div>
+        <div>
+            <h3 class="font-bold text-lg text-slate-800 tracking-tight">Tidak Dapat Dihapus</h3>
+            <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">{{ session('error') }}</p>
+        </div>
+        
+        <div class="pt-2">
+            <button type="button" onclick="document.getElementById('errorModal').classList.add('hidden')" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-xs shadow-sm transition active:scale-95">
+                Mengerti
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
 <script>
     let activeFormId = null;
 
