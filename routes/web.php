@@ -63,4 +63,8 @@ Route::middleware('auth')->group(function () {
             'jenis' => 'jenis',
         ]);
     });
+    Route::get('/tentang', function () {
+        return view('tentang');
+    })->name('tentang');
 });
+

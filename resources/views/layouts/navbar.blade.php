@@ -8,7 +8,7 @@
                 </svg>
             </div>
             <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-white rounded-box w-52 border border-slate-100 font-medium">
-                <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active bg-rose-50 text-rose-600' : '' }}">Dashboard</a></li>
+                <li><a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active bg-rose-50 text-rose-600' : '' }}">Dasbor</a></li>
                 
                 <!-- Menu Khusus Admin (Mobile) -->
                 @if(Auth::user() && Auth::user()->role->name === 'admin')
@@ -22,6 +22,9 @@
                 @if(Auth::user() && Auth::user()->role->name === 'admin')
                     <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'active bg-rose-50 text-rose-600' : '' }}">Laporan</a></li>
                 @endif
+
+                <!-- Menu Tentang (Mobile) -->
+                <li><a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang*') ? 'active bg-rose-50 text-rose-600' : '' }}">Tentang</a></li>
             </ul>
         </div>
         <a href="{{ route('dashboard') }}" class="font-bold text-lg text-slate-800 tracking-wider">
@@ -46,6 +49,9 @@
             @if(Auth::user() && Auth::user()->role->name === 'admin')
                 <li><a href="{{ route('admin.reports.monthly') }}" class="{{ request()->routeIs('admin.reports*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Laporan</a></li>
             @endif
+
+            <!-- Menu Tentang (Desktop) -->
+            <li><a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Tentang</a></li>
         </ul>
     </div>
 

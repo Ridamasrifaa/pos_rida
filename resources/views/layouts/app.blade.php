@@ -62,7 +62,7 @@
 
     <!-- Footer Global -->
     <footer class="py-6 text-center text-xs text-slate-400 font-medium border-t border-slate-100 mt-auto">
-        POS Rida &copy; 2026
+        POS TokoGO &copy; 2026
     </footer>
 
 </body>

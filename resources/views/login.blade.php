@@ -136,9 +136,14 @@
 
                 <!-- Header Teks -->
                 <div class="text-center mb-7">
-                    <h1 class="text-2xl font-extrabold tracking-tight text-slate-800">POS Rida</h1>
-                    <p class="text-xs text-slate-500 mt-1 font-medium">Silakan masuk menggunakan akun kasir Anda.</p>
+                    <h1 class="text-2xl font-black tracking-tight text-slate-800 flex items-center justify-center gap-1">
+                        <span>TOKO</span><span class="text-rose-600">GO</span>
+                    </h1>
+                      <p class="text-xs text-slate-500 mt-5 font-medium">Silakan masuk menggunakan akun kasir Anda.</p>
+                
                 </div>
+                    
+                
 
                 <!-- Form Login -->
                 <form id="loginForm" action="{{ route('auth') }}" method="POST" class="space-y-4">
@@ -212,7 +217,7 @@
 
         <!-- Footer -->
         <p class="text-center text-xs text-slate-400 mt-4 font-medium">
-            POS Rida &copy; 2026
+            POS TokoGo &copy; 2026
         </p>
 
     </div>
