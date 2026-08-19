@@ -5,30 +5,18 @@
 @section('content')
 
 <div class="w-full max-w-3xl mx-auto space-y-6 font-sans py-6 px-4 animate-fadeIn">
-    <!-- Header Halaman (Tombol Kembali di atas sudah dihapus) -->
+    <!-- Header Halaman -->
     <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200">
         <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Produk</h1>
         <p class="text-sm font-normal text-slate-600 mt-0.5">Perbarui informasi data produk ke dalam sistem.</p>
     </div>
-
-    <!-- Alert Validasi Error -->
-    @if ($errors->any())
-        <div class="bg-rose-50 border border-rose-200 text-rose-700 px-5 py-4 rounded-2xl text-sm shadow-sm">
-            <span class="font-bold block mb-1">Terjadi kesalahan pengisian form:</span>
-            <ul class="list-disc pl-5 space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <div class="bg-white rounded-3xl shadow-md border border-slate-200 p-6">
         <form action="{{ route('produk.update', $product->id) }}" method="POST" enctype="multipart/form-data" class="space-y-5">
             @csrf
             @method('PUT')
 
-            <!-- Custom Preview & Input Foto -->
+            <!-- Custom Input Foto dengan Preview -->
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Foto Produk</label>
                 
@@ -62,11 +50,20 @@
                 @enderror
             </div>
 
-            <!-- Input Jenis Produk (Dropdown Style Dipermak Modern) -->
+            <!-- Input Nama -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Nama Produk</label>
+                <input type="text" name="nama" value="{{ old('nama', $product->nama) }}" placeholder="Contoh: Kopi Susu Aren" class="w-full px-4 py-2.5 rounded-xl border @error('nama') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
+                @error('nama')
+                    <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Input Jenis Produk -->
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Jenis Produk</label>
                 <div class="relative">
-                    <select name="jenis_id" id="jenis_id" required class="w-full px-4 py-3 rounded-xl border @error('jenis_id') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm font-medium text-slate-800 appearance-none transition cursor-pointer pr-10 shadow-sm">
+                    <select name="jenis_id" id="jenis_id" required class="w-full px-4 py-2.5 rounded-xl border @error('jenis_id') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 appearance-none transition cursor-pointer pr-10 shadow-sm">
                         <option value="" disabled class="text-slate-400">Pilih jenis produk...</option>
                         @foreach ($data_jenis as $jenis)
                             <option value="{{ $jenis->id }}" {{ old('jenis_id', $product->jenis_id) == $jenis->id ? 'selected' : '' }} class="py-2 text-slate-800 bg-white">
@@ -86,29 +83,32 @@
                 @enderror
             </div>
 
-            <!-- Input Nama Produk -->
-            <div>
-                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Nama Produk</label>
-                <input type="text" name="nama" value="{{ old('nama', $product->nama) }}" required placeholder="Contoh: Kopi Susu Aren" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600 text-sm transition">
-            </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- Input Harga Beli -->
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Harga Beli (Rp)</label>
-                    <input type="number" name="harga_beli" value="{{ old('harga_beli', intval($product->harga_beli)) }}" required placeholder="Contoh: 10000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600 text-sm transition">
+                    <input type="number" name="harga_beli" value="{{ old('harga_beli', intval($product->harga_beli)) }}" placeholder="Contoh: 10000" class="w-full px-4 py-2.5 rounded-xl border @error('harga_beli') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
+                    @error('harga_beli')
+                        <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
+                    @enderror
                 </div>
                 <!-- Input Harga Jual -->
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Harga Jual (Rp)</label>
-                    <input type="number" name="harga_jual" value="{{ old('harga_jual', intval($product->harga_jual)) }}" required placeholder="Contoh: 15000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600 text-sm transition">
+                    <input type="number" name="harga_jual" value="{{ old('harga_jual', intval($product->harga_jual)) }}" placeholder="Contoh: 15000" class="w-full px-4 py-2.5 rounded-xl border @error('harga_jual') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
+                    @error('harga_jual')
+                        <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
+                    @enderror
                 </div>
             </div>
 
             <!-- Input Stok -->
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Stok</label>
-                <input type="number" name="stok" value="{{ old('stok', intval($product->stok)) }}" required placeholder="Contoh: 50" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-600 focus:ring-1 focus:ring-rose-600 text-sm transition">
+                <input type="number" name="stok" value="{{ old('stok', intval($product->stok)) }}" placeholder="Contoh: 50" class="w-full px-4 py-2.5 rounded-xl border @error('stok') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
+                @error('stok')
+                    <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
+                @enderror
             </div>
 
             <!-- Tombol Aksi Bawah -->

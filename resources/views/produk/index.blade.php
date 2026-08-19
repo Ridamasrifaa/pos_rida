@@ -149,59 +149,54 @@
 </div>
 
 <!-- ========================================== -->
-<!-- MODAL ERROR KUSTOM -->
+<!-- MODAL NOTIFIKASI ERROR (DISAMAKAN DENGAN JENIS) -->
 <!-- ========================================== -->
 @if(session('error'))
-    <div id="errorModal" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-900/70">
-        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 space-y-5 text-center">
-            <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xl mx-auto shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                </svg>
-            </div>
-            <div class="space-y-2">
-                <h3 class="font-bold text-lg text-slate-900">Tidak Dapat Menghapus Produk</h3>
-                <p class="text-sm font-normal text-slate-600 leading-relaxed">Produk ini tidak dapat dihapus karena sudah tercatat dalam riwayat transaksi penjualan.</p>
-            </div>
-            <div>
-                <button type="button" onclick="closeErrorModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl text-sm font-semibold shadow-md shadow-amber-500/20 transition cursor-pointer">
-                    Mengerti
-                </button>
-            </div>
+<div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center space-y-5 transform transition-all">
+        <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+        </div>
+        <div>
+            <h3 class="font-bold text-lg text-slate-800 tracking-tight">Tidak Dapat Dihapus</h3>
+            <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">{{ session('error') }}</p>
+        </div>
+        
+        <div class="pt-2">
+            <button type="button" onclick="document.getElementById('errorModal').classList.add('hidden')" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer">
+                Mengerti
+            </button>
         </div>
     </div>
-
-    <script>
-        function closeErrorModal() {
-            const modal = document.getElementById('errorModal');
-            if(modal) modal.remove();
-        }
-    </script>
+</div>
 @endif
 
 <!-- ========================================== -->
-<!-- MODAL KONFIRMASI HAPUS KUSTOM (CARD) -->
+<!-- MODAL KONFIRMASI HAPUS -->
 <!-- ========================================== -->
 @if(Auth::user() && Auth::user()->role->name === 'admin')
-<div id="deleteModal" class="fixed inset-0 z-[999999] flex items-center justify-center p-4 bg-slate-900/70 hidden">
-    <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 space-y-5 text-center">
-        <div class="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-xl mx-auto shadow-sm">
+<div id="deleteModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-xs hidden p-4">
+    <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center space-y-5 transform transition-all">
+        <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
             </svg>
         </div>
-        <div class="space-y-2">
-            <h3 class="font-bold text-lg text-slate-900">Hapus Produk?</h3>
-            <p class="text-sm font-normal text-slate-600 leading-relaxed">Apakah Anda yakin ingin menghapus produk <span id="productNameTarget" class="font-semibold text-slate-800"></span>?</p>
+        <div>
+            <h3 class="font-bold text-lg text-slate-800 tracking-tight">Hapus Produk?</h3>
+            <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Apakah Anda yakin ingin menghapus produk <span id="productNameTarget" class="font-semibold text-slate-800"></span>?</p>
         </div>
-        <div class="flex items-center gap-2 pt-1">
-            <button type="button" onclick="closeDeleteModal()" class="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-sm font-semibold transition cursor-pointer">
+        
+        <div class="grid grid-cols-2 gap-3 pt-2">
+            <button type="button" onclick="closeDeleteModal()" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold text-xs transition active:scale-95 cursor-pointer">
                 Batal
             </button>
-            <form id="deleteFormTarget" method="POST" class="w-full">
+            <form id="deleteFormTarget" method="POST">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl text-sm font-semibold shadow-md shadow-rose-600/20 transition cursor-pointer">
+                <button type="submit" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-xs shadow-sm transition active:scale-95 cursor-pointer">
                     Ya, Hapus
                 </button>
             </form>

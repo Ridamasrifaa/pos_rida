@@ -139,7 +139,7 @@
                     <h1 class="text-2xl font-black tracking-tight text-slate-800 flex items-center justify-center gap-1">
                         <span>TOKO</span><span class="text-rose-600">GO</span>
                     </h1>
-                      <p class="text-xs text-slate-500 mt-5 font-medium">Silakan masuk menggunakan akun kasir Anda.</p>
+                      <p class="text-xs text-slate-500 mt-5 font-medium">Silakan login menggunakan akun Anda.</p>
                 
                 </div>
                     

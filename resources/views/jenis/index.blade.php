@@ -35,7 +35,19 @@
         <div class="p-6 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white">
             <div>
                 <h3 class="font-bold text-lg text-slate-900">Tabel Jenis Produk</h3>
-                <span class="text-xs font-semibold text-slate-500">Total: <span class="text-slate-800">{{ $jenis->total() ?? count($jenis) }}</span> Jenis</span>
+                <span class="text-xs font-semibold text-slate-500">Total: <span id="total-jenis" class="text-slate-800">{{ $jenis->total() ?? count($jenis) }}</span> Jenis</span>
+            </div>
+
+            <!-- Form Pencarian (Realtime Live Search) -->
+            <div class="flex items-center w-full sm:w-auto">
+                <div class="relative w-full sm:w-72">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </span>
+                    <input type="text" id="search-input" value="{{ request('search') }}" placeholder="Cari Jenis Produk..." class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 transition-all duration-200 shadow-sm">
+                </div>
             </div>
         </div>
 
@@ -50,39 +62,13 @@
                         <th scope="col" class="py-4 px-4 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="text-slate-700 font-normal divide-y divide-slate-100">
-                    @forelse($jenis as $item)
-                        <tr class="hover:bg-slate-50/50 transition-colors">
-                            <td class="py-4 px-4 text-center font-normal text-slate-700">
-                                {{ $loop->iteration + ($jenis->currentPage() - 1) * $jenis->perPage() }}
-                            </td>
-                            <td class="py-4 px-4 font-normal text-slate-700">
-                                {{ $item->user->name ?? 'Tidak diketahui' }}
-                            </td>
-                            <td class="py-4 px-4 font-normal text-slate-800">{{ $item->nama_jenis }}</td>
-                            <td class="py-4 px-4 text-center">
-                                <div class="inline-flex items-center gap-2">
-                                    <a href="{{ route('jenis.edit', $item->id) }}" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-full shadow-xs transition-all active:scale-95">Edit</a>
-                                    
-                                    <button type="button" onclick="openDeleteModal('delete-form-{{ $item->id }}')" class="px-3.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-full shadow-xs transition-all active:scale-95">Hapus</button>
-                                    
-                                    <form id="delete-form-{{ $item->id }}" action="{{ route('jenis.destroy', $item->id) }}" method="POST" class="hidden">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="py-8 text-center text-slate-500 font-normal">Belum ada data jenis produk.</td>
-                        </tr>
-                    @endforelse
+                <tbody id="jenis-list" class="text-slate-700 font-normal divide-y divide-slate-100">
+                    @include('jenis.partials.table')
                 </tbody>
             </table>
         </div>
 
-        <div class="p-4 border-t border-slate-200 bg-white">
+        <div id="pagination-container" class="p-4 border-t border-slate-200 bg-white">
             {{ $jenis->links() }}
         </div>
     </div>
@@ -122,7 +108,7 @@
     </div>
 </div>
 
-<!-- Modal Notifikasi Error (Gagal Hapus karena Masih Dipakai Produk) -->
+<!-- Modal Notifikasi Error -->
 @if(session('error'))
 <div id="errorModal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 backdrop-blur-xs p-4">
     <div class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center space-y-5 transform transition-all">
@@ -145,6 +131,7 @@
 </div>
 @endif
 
+<!-- Script Live Search AJAX & Modal Control -->
 <script>
     let activeFormId = null;
 
@@ -161,6 +148,45 @@
     document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
         if (activeFormId) {
             document.getElementById(activeFormId).submit();
+        }
+    });
+
+    // Fungsi Live Search AJAX
+    function fetchJenis(url) {
+        let query = document.getElementById('search-input').value;
+        let targetUrl = url || "{{ route('jenis.index') }}?search=" + encodeURIComponent(query);
+
+        if (!targetUrl.includes('search=') && query) {
+            let separator = targetUrl.includes('?') ? '&' : '?';
+            targetUrl += `${separator}search=${encodeURIComponent(query)}`;
+        }
+
+        fetch(targetUrl, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('jenis-list').innerHTML = data.html;
+            document.getElementById('total-jenis').innerText = data.total;
+            document.getElementById('pagination-container').innerHTML = data.pagination;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Trigger saat mengetik di input pencarian
+    document.getElementById('search-input').addEventListener('input', function() {
+        fetchJenis();
+    });
+
+    // Trigger saat tombol pagination diklik tanpa reload halaman
+    document.addEventListener('click', function(event) {
+        let paginationLink = event.target.closest('#pagination-container a');
+        if (paginationLink) {
+            event.preventDefault();
+            let url = paginationLink.href;
+            fetchJenis(url);
         }
     });
 </script>
