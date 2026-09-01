@@ -148,13 +148,13 @@
 
                                 <template x-if="user.roleName.toLowerCase() === 'admin'">
 
-                                    <span class="inline-block px-3 py-1 font-semibold text-rose-800 bg-rose-100 rounded-xl text-xs whitespace-nowrap" x-text="user.roleName"></span>
+                                    <span class="font-medium text-slate-700" x-text="user.roleName"></span>
 
                                 </template>
 
                                 <template x-if="user.roleName.toLowerCase() !== 'admin'">
 
-                                    <span class="inline-block px-3 py-1 font-semibold text-blue-800 bg-blue-100 rounded-xl text-xs whitespace-nowrap" x-text="user.roleName"></span>
+                                    <span class="font-medium text-slate-700" x-text="user.roleName"></span>
 
                                 </template>
 

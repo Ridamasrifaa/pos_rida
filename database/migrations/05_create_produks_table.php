@@ -17,8 +17,8 @@ return new class extends Migration
          $table->foreignId('jenis_id')->constrained('jenis','id');
         $table->string('foto');
         $table->string('nama');
-        $table->decimal('harga_beli');
-        $table->decimal('harga_jual');
+        $table->decimal('harga_beli', 15, 2);
+$table->decimal('harga_jual', 15, 2);
         $table->integer('stok');
         $table->index('nama');
         $table->timestamps();

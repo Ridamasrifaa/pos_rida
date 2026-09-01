@@ -3,29 +3,34 @@
 namespace Database\Factories;
 
 use App\Models\Produk;
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
+use App\Models\Jenis;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Produk>
- */
 class ProdukFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         $hargaBeli = $this->faker->numberBetween(10_000, 50_000);
+
+        // Ambil ID dari user acak yang ada di database
+        $userId = User::inRandomOrder()->value('id') ?? User::factory();
+
+        // Cari jenis yang ada, atau buat baru jika belum ada
+        $jenisId = Jenis::inRandomOrder()->value('id') 
+            ?? Jenis::create([
+                'nama_jenis' => 'Umum',
+                'user_id'    => is_numeric($userId) ? $userId : 1,
+            ])->id;
+
         return [
-            'user_id' => User::where('role_id', 1)->inRandomOrder()->value('id'),
-            'foto' => '/produk/' . $this->faker->uuid() . '.jpg',
-            'nama' => $this->faker->words(3, true),
+            'user_id'    => $userId,
+            'jenis_id'   => $jenisId,
+            'foto'       => '/produk/' . $this->faker->uuid() . '.jpg',
+            'nama'       => $this->faker->words(3, true),
             'harga_beli' => $hargaBeli,
             'harga_jual' => $hargaBeli + $this->faker->numberBetween(5_000, 100_000),
-            'stok' => $this->faker->numberBetween(1, 500),
+            'stok'       => $this->faker->numberBetween(1, 500),
         ];
     }
 }

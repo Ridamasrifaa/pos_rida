@@ -31,7 +31,9 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
-            'role_id' => Role::inRandomOrder()->value('id'),
+
+            // Tambahkan fn() => di sini agar diacak ulang setiap baris data!
+            'role_id' => fn() => Role::inRandomOrder()->value('id') ?? 1,
         ];
     }
 

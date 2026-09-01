@@ -102,27 +102,27 @@ class ProductController extends Controller
         return view('produk.create', compact('data_jenis'));
     }
 
- public function store(Request $request)
+public function store(Request $request)
 {
-    // Validasi input dengan 'foto' wajib diisi (required)
     $request->validate([
-        'nama' => 'required|string|max:255',
-        'jenis_id' => 'required|exists:jenis,id',
-        'harga_beli' => 'required|numeric|min:0',
-        'harga_jual' => 'required|numeric|min:0',
-        'stok' => 'required|integer|min:0',
-        'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // Wajib diisi & harus gambar
+        'nama'       => 'required|string|max:255',
+        'jenis_id'   => 'required|exists:jenis,id',
+        'harga_beli' => 'required|numeric|min:0|max:999999999999',
+        'harga_jual' => 'required|numeric|min:0|max:999999999999',
+        'stok'       => 'required|integer|min:0',
+        'foto'       => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
     ], [
-        'foto.required' => 'Foto produk wajib diunggah!',
-        'foto.image' => 'File harus berupa gambar.',
-        'foto.mimes' => 'Format foto harus berjenis: jpeg, png, jpg, atau webp.',
-        'foto.max' => 'Ukuran foto maksimal adalah 2MB.',
+        'foto.required'    => 'Foto produk wajib diunggah!',
+        'foto.image'       => 'File harus berupa gambar.',
+        'foto.mimes'       => 'Format foto harus berjenis: jpeg, png, jpg, atau webp.',
+        'foto.max'         => 'Ukuran foto maksimal adalah 2MB.',
+        'harga_beli.max'   => 'Harga beli terlalu besar.',
+        'harga_jual.max'   => 'Harga jual terlalu besar.',
     ]);
 
     $data = $request->except('foto');
     $data['user_id'] = Auth::id();
 
-    // Karena sudah divalidasi 'required', bagian ini pasti ada filenya
     if ($request->hasFile('foto')) {
         $data['foto'] = $request->file('foto')->store('products', 'public');
     }
