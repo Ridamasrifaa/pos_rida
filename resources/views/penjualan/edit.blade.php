@@ -8,10 +8,11 @@
      class="space-y-6 relative opacity-0 translate-y-4 transition-all duration-700 ease-out"
      x-init="$el.classList.remove('opacity-0', 'translate-y-4')">
 
-    <div class="flex justify-between items-center">
+    <!-- Card Header / Judul Halaman -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex justify-between items-center">
         <div>
             <h1 class="text-2xl font-bold text-slate-800">Edit Transaksi #{{ $penjualan->id }}</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Ubah item barang, metode pembayaran, atau status transaksi.</p>
+            <p class="text-sm text-slate-500 mt-0.5">Ubah item barang atau status transaksi di keranjang kasir.</p>
         </div>
     </div>
 
@@ -32,7 +33,7 @@
                          x-transition:enter-end="opacity-100 translate-y-0">
                         
                         <div class="flex items-center gap-3.5">
-                            <!-- Gambar Produk (Menggunakan kolom 'foto') -->
+                            <!-- Gambar Produk -->
                             <img :src="product.foto ? '{{ asset('storage') }}/' + product.foto : 'https://placehold.co/100x100?text=No+Image'" 
                                  alt="Foto Produk" 
                                  class="w-16 h-16 object-cover rounded-2xl border border-slate-100 shadow-sm flex-shrink-0 bg-slate-50">
@@ -55,24 +56,30 @@
             </div>
         </div>
 
-        <!-- KOLOM KANAN: Keranjang / Item Barang & Form Update -->
+        <!-- KOLOM KANAN: Keranjang & Form Update -->
         <div class="lg:col-span-5 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between space-y-6">
-            <form action="{{ route('penjualan.update', $penjualan->id) }}" method="POST" @submit.prevent="confirmSave" class="flex flex-col justify-between h-full space-y-6" id="form-update-penjualan">
+            <form action="{{ route('penjualan.update', $penjualan->id) }}" method="POST" @submit="isSubmitting = true" class="flex flex-col justify-between h-full space-y-6">
                 @csrf
                 @method('PUT')
-                
                 <div class="space-y-4">
-                    <h3 class="font-bold text-lg text-slate-800">Item Transaksi</h3>
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-lg text-slate-800">Keranjang Belanja</h3>
+                    </div>
 
-                    <div class="overflow-x-auto border border-slate-100 rounded-2xl max-h-[280px] overflow-y-auto">
+                    <div class="overflow-x-auto border border-slate-100 rounded-2xl max-h-[300px] overflow-y-auto">
                         <table class="table w-full text-xs">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400">
-                                    <th class="py-3 px-3">Produk</th>
-                                    <th class="py-3 px-2">Harga</th>
-                                    <th class="py-3 px-2">Qty</th>
-                                    <th class="py-3 px-2">Subtotal</th>
-                                    <th class="py-3 px-2">Aksi</th>
+                                    <th class="py-3 px-3 text-left">Produk</th>
+                                    <th class="py-3 px-2 text-left">Harga</th>
+                                    <th class="py-3 px-2 text-center">Qty</th>
+                                    <th class="py-3 px-2 text-left">Subtotal</th>
+                                    @php
+                                        $isAdmin = auth()->check() && auth()->user()->role && strtoupper(auth()->user()->role->name) === 'ADMIN';
+                                    @endphp
+                                    @if($isAdmin)
+                                    <th class="py-3 px-2 text-center">Aksi</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <tbody>
@@ -83,18 +90,21 @@
                                         x-transition:enter-end="opacity-100">
                                         <td class="py-3 px-3 font-medium text-slate-700" x-text="item.nama"></td>
                                         <td class="py-3 px-2" x-text="'Rp ' + Number(item.harga_jual).toLocaleString('id-ID')"></td>
-                                        <td class="py-3 px-2">
-                                            <input type="number" x-model.number="item.qty" @change="updateQty(index)" min="1" class="w-12 px-1 py-1 text-center border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-rose-500">
+                                        <td class="py-3 px-2 text-center">
+                                            <input type="number" x-model.number="item.qty" @change="updateQty(index)" min="1" class="w-12 mx-auto px-1 py-1 text-center border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-rose-500">
                                         </td>
                                         <td class="py-3 px-2 font-semibold text-slate-800" x-text="'Rp ' + Number(item.harga_jual * item.qty).toLocaleString('id-ID')"></td>
-                                        <td class="py-3 px-2">
+                                        
+                                        @if($isAdmin)
+                                        <td class="py-3 px-2 text-center">
                                             <button @click="removeFromCart(index)" type="button" class="px-2 py-1 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white rounded-lg text-[10px] font-bold transition">Hapus</button>
                                         </td>
+                                        @endif
                                     </tr>
                                 </template>
                                 <template x-if="cart.length === 0">
                                     <tr>
-                                        <td colspan="5" class="text-center py-8 text-slate-400">Belum ada item dipilih</td>
+                                        <td colspan="{{ $isAdmin ? 5 : 4 }}" class="text-center py-8 text-slate-400">Keranjang masih kosong</td>
                                     </tr>
                                 </template>
                             </tbody>
@@ -102,20 +112,20 @@
                     </div>
                 </div>
 
-                <!-- Bagian Pembayaran & Pengaturan Status -->
+                <!-- Bagian Pembayaran & Tombol Aksi -->
                 <div class="space-y-4 pt-4 border-t border-slate-100">
                     <div>
                         <div class="text-xs text-slate-400 font-medium">Total Pembayaran</div>
                         <div class="text-2xl font-extrabold text-slate-800 mb-3" x-text="'Rp ' + totalBayar.toLocaleString('id-ID')"></div>
                         
-                        <!-- Pilihan Metode Pembayaran Model Tombol Kartu Modern -->
-                        <div class="space-y-2 mb-3">
+                        <!-- Pilihan Metode Pembayaran -->
+                        <div class="space-y-2">
                             <label class="block text-xs font-semibold text-slate-600">Metode Pembayaran <span class="text-rose-500">*</span></label>
                             
                             <input type="hidden" name="metode_pembayaran" x-model="metodePembayaran" required>
+                            <input type="hidden" name="uang_bayar" :value="parsedUangBayar">
 
                             <div class="grid grid-cols-3 gap-2">
-                                <!-- Opsi Cash -->
                                 <button type="button" 
                                         @click="metodePembayaran = 'cash'"
                                         :class="metodePembayaran === 'cash' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
@@ -124,18 +134,16 @@
                                     Cash
                                 </button>
 
-                                <!-- Opsi QRIS -->
                                 <button type="button" 
-                                        @click="metodePembayaran = 'qris'"
+                                        @click="metodePembayaran = 'qris'; uangBayar = ''"
                                         :class="metodePembayaran === 'qris' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
                                         class="py-2.5 px-3 border rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                                     QRIS
                                 </button>
 
-                                <!-- Opsi Transfer -->
                                 <button type="button" 
-                                        @click="metodePembayaran = 'transfer'"
+                                        @click="metodePembayaran = 'transfer'; uangBayar = ''"
                                         :class="metodePembayaran === 'transfer' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
                                         class="py-2.5 px-3 border rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
@@ -144,112 +152,97 @@
                             </div>
                         </div>
 
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Status Transaksi <span class="text-rose-500">*</span></label>
-                        <select name="status" x-model="statusTransaksi" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:border-rose-500 transition">
-                            <option value="completed">COMPLETED</option>
-                            <option value="open">OPEN</option>
-                        </select>
+                        <!-- INPUT CASH & KEMBALIAN -->
+                        <div x-show="metodePembayaran === 'cash'" x-collapse class="mt-4 space-y-4 p-4 bg-rose-50/50 border border-rose-100 rounded-2xl">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Uang Diberikan (Rp)</label>
+                                <input type="text" inputmode="numeric" x-model="uangBayar" placeholder="Contoh: 50000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm font-semibold">
+                                
+                                <span x-show="parsedUangBayar > 0 && parsedUangBayar < totalBayar" class="text-xs text-rose-500 font-bold mt-1 block">
+                                    Uang bayar kurang Rp <span x-text="(totalBayar - parsedUangBayar).toLocaleString('id-ID')"></span>!
+                                </span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Kembalian (Rp)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 font-bold">Rp</span>
+                                    <input type="text" readonly :value="kembalian.toLocaleString('id-ID')" class="w-full pl-12 pr-4 py-3 rounded-xl border border-green-200 bg-green-50 text-green-700 font-bold text-lg transition shadow-sm outline-none">
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Input tersembunyi untuk dikirim ke Controller -->
+                    <!-- Input tersembunyi -->
                     <input type="hidden" name="total_pembayaran" x-model="totalBayar">
                     <input type="hidden" name="items" x-model="JSON.stringify(cart)">
+                    <input type="hidden" name="status" x-model="statusTransaksi">
 
-                    <!-- Tombol Aksi -->
-                    <div class="space-y-2">
-                        <div class="grid grid-cols-2 gap-3">
-                            <button type="button" @click="showSaveModal = true" :disabled="cart.length === 0 || !metodePembayaran" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-amber-100 transition active:scale-95">
-                                Simpan Perubahan
-                            </button>
+                    <!-- Tombol Aksi: Simpan Draft (OPEN) & Update / Checkout (COMPLETED) -->
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button type="submit" @click="statusTransaksi = 'OPEN'" :disabled="cart.length === 0 || !metodePembayaran || isSubmitting" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-amber-100 transition flex items-center justify-center gap-2 transform active:scale-95">
+                            <span x-show="isSubmitting && statusTransaksi === 'OPEN'" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            <span x-text="isSubmitting && statusTransaksi === 'OPEN' ? 'Memproses...' : 'Simpan Draft'"></span>
+                        </button>
 
-                            @if(strtolower($penjualan->status) === 'open')
-                                <button type="button" @click="showDeleteModal = true" class="w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-sm shadow-sm shadow-rose-100 transition active:scale-95">
-                                    Hapus Transaksi
-                                </button>
-                            @else
-                                <a href="{{ route('penjualan.index') }}" class="block text-center w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl font-bold text-sm transition active:scale-95">
-                                    Batalkan
-                                </a>
-                            @endif
-                        </div>
-
-                        @if(strtolower($penjualan->status) === 'open')
-                            <a href="{{ route('penjualan.index') }}" class="block text-center w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl font-bold text-sm transition active:scale-95">
-                                Batalkan Transaksi
-                            </a>
-                        @endif
+                        <button type="submit" @click="statusTransaksi = 'COMPLETED'" :disabled="cart.length === 0 || !metodePembayaran || isSubmitting || (metodePembayaran === 'cash' && parsedUangBayar < totalBayar)" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-emerald-100 transition flex items-center justify-center gap-2 transform active:scale-95">
+                            <span x-show="isSubmitting && statusTransaksi === 'COMPLETED'" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            <span x-text="isSubmitting && statusTransaksi === 'COMPLETED' ? 'Memproses...' : 'Checkout / Selesai'"></span>
+                        </button>
                     </div>
+
+                    @if($isAdmin)
+                    <a href="{{ route('penjualan.index') }}" class="block text-center w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl font-bold text-sm transition mt-3">
+                        Batalkan Perubahan
+                    </a>
+                    @endif
                 </div>
             </form>
-
-            <!-- Card Modal Konfirmasi Simpan Perubahan -->
-            <div x-show="showSaveModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4" x-transition.opacity>
-                <div @click.outside="showSaveModal = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center space-y-5" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100">
-                    <div class="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6A2.25 2.25 0 016 3.75h1.5m9 0h-9" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-lg text-slate-800">Simpan Perubahan?</h4>
-                        <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Pastikan data item dan nominal pembayaran sudah benar sebelum menyimpan.</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 pt-2">
-                        <button type="button" @click="showSaveModal = false" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold text-xs transition active:scale-95">
-                            Batal
-                        </button>
-                        <button type="button" @click="executeSave" :disabled="isSaving" class="w-full py-3 bg-amber-500 hover:bg-amber-600 disabled:bg-amber-300 text-white rounded-2xl font-bold text-xs shadow-sm transition active:scale-95 flex items-center justify-center gap-2">
-                            <span x-show="isSaving" class="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                            <span x-text="isSaving ? 'Menyimpan...' : 'Ya, Simpan'"></span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Modal Konfirmasi Hapus Transaksi -->
-            @if(strtolower($penjualan->status) === 'open')
-                <div x-show="showDeleteModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 p-4" x-transition.opacity>
-                    <div @click.outside="showDeleteModal = false" class="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl border border-slate-100 text-center space-y-5" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100">
-                        <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-lg text-slate-800">Hapus Transaksi Ini?</h4>
-                            <p class="text-xs text-slate-500 mt-1.5 leading-relaxed">Tindakan ini tidak dapat dibatalkan dan data transaksi akan dihapus permanen dari sistem.</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-3 pt-2">
-                            <button type="button" @click="showDeleteModal = false" class="py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl font-bold text-xs transition active:scale-95">
-                                Batal
-                            </button>
-                            <form action="{{ route('penjualan.destroy', $penjualan->id) }}" method="POST" @submit="isDeleting = true">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" :disabled="isDeleting" class="w-full py-3 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-400 text-white rounded-2xl font-bold text-xs shadow-sm transition active:scale-95 flex items-center justify-center gap-2">
-                                    <span x-show="isDeleting" class="inline-block w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                                    <span x-text="isDeleting ? 'Menghapus...' : 'Ya, Hapus'"></span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </div>
 
     </div>
+
+    <!-- MODAL POPUP PERINGATAN -->
+    <template x-if="showModal">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/30 transition-opacity"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100">
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full mx-4 shadow-2xl border border-slate-100 text-center space-y-4 transform transition-all"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-90 translate-y-4"
+                 x-transition:enter-end="opacity-100 scale-100 translate-y-0">
+                
+                <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto animate-bounce">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                
+                <div class="space-y-1">
+                    <h3 class="font-bold text-lg text-slate-800">Peringatan Stok</h3>
+                    <p class="text-sm text-slate-500 leading-relaxed" x-text="errorMessage"></p>
+                </div>
+
+                <button @click="showModal = false" type="button" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-sm shadow-sm shadow-rose-100 transition transform active:scale-95">
+                    Mengerti
+                </button>
+            </div>
+        </div>
+    </template>
 </div>
 
 <!-- Script Alpine.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 <script>
     function editPosApp() {
         return {
             search: '',
-            isSaving: false,
-            isDeleting: false,
-            showSaveModal: false,
-            showDeleteModal: false,
+            errorMessage: '',
+            showModal: false,
+            isSubmitting: false,
             products: @json($products).map(p => ({
                 id: p.id,
                 nama: p.nama,
@@ -258,22 +251,52 @@
                 foto: p.foto,
                 tempQty: 1
             })),
+            // Memuat item transaksi lama ke dalam keranjang
             cart: @json($penjualan->itemPenjualans).map(item => ({
                 id: item.produks_id,
                 nama: item.produk ? item.produk.nama : 'Produk Dihapus',
                 harga_jual: item.harga_satuan,
+                stok: item.produk ? item.produk.stok : 999,
                 qty: item.kuantitas
             })),
             metodePembayaran: '{{ strtolower($penjualan->metode_pembayaran) }}',
-            statusTransaksi: '{{ strtolower($penjualan->status) == "selesai" ? "completed" : strtolower($penjualan->status) }}',
+            uangBayar: '{{ $penjualan->uang_bayar ?? '' }}', 
+            statusTransaksi: '{{ strtoupper($penjualan->status) }}',
             
             get filteredProducts() {
                 if (this.search === '') return this.products;
                 return this.products.filter(p => p.nama.toLowerCase().includes(this.search.toLowerCase()));
             },
 
+            get parsedUangBayar() {
+                if (!this.uangBayar) return 0;
+                let cleanValue = String(this.uangBayar).replace(/\./g, '').replace(/,/g, '');
+                let val = parseFloat(cleanValue);
+                return isNaN(val) ? 0 : val;
+            },
+
+            get kembalian() {
+                if (this.parsedUangBayar < this.totalBayar) return 0;
+                return this.parsedUangBayar - this.totalBayar;
+            },
+
             addToCart(product) {
+                if (product.tempQty > product.stok) {
+                    this.errorMessage = `Stok produk "${product.nama}" tidak mencukupi! Sisa stok: ${product.stok}`;
+                    this.showModal = true;
+                    return;
+                }
+
                 let existingItem = this.cart.find(item => item.id === product.id);
+                let currentQtyInCart = existingItem ? existingItem.qty : 0;
+                let totalRequested = currentQtyInCart + product.tempQty;
+
+                if (totalRequested > product.stok) {
+                    this.errorMessage = `Jumlah melebihi stok tersedia! Sisa stok: ${product.stok - currentQtyInCart}`;
+                    this.showModal = true;
+                    return;
+                }
+
                 if (existingItem) {
                     existingItem.qty += product.tempQty;
                 } else {
@@ -281,6 +304,7 @@
                         id: product.id,
                         nama: product.nama,
                         harga_jual: product.harga_jual,
+                        stok: product.stok,
                         qty: product.tempQty
                     });
                 }
@@ -292,14 +316,15 @@
             },
 
             updateQty(index) {
-                if (this.cart[index].qty <= 0) {
-                    this.cart[index].qty = 1;
+                let item = this.cart[index];
+                if (item.qty <= 0) {
+                    item.qty = 1;
                 }
-            },
-
-            executeSave() {
-                this.isSaving = true;
-                document.getElementById('form-update-penjualan').submit();
+                if (item.qty > item.stok) {
+                    this.errorMessage = `Stok maksimal untuk "${item.nama}" adalah ${item.stok}`;
+                    this.showModal = true;
+                    item.qty = item.stok;
+                }
             },
 
             get totalBayar() {

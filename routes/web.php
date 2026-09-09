@@ -47,6 +47,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // --- LAPORAN / REKAP (Admin) ---
+    Route::get('/admin/reports/daily/{year}/{month}/pdf', [ReportController::class, 'downloadDailyPDF'])->name('admin.reports.daily.download');
     Route::prefix('admin')->name('admin.reports.')->group(function () {
         Route::get('/rekap-bulanan', [ReportController::class, 'monthlyIndex'])->name('monthly');
         Route::get('/rekap-mingguan', [ReportController::class, 'weeklyIndex'])->name('weekly');
@@ -66,5 +67,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/tentang', function () {
         return view('tentang');
     })->name('tentang');
+});Route::get('/', function () {
+    // Mengambil semua data produk dari database tabel produk
+    $produks = App\Models\Produk::all(); 
+    
+    // Menampilkan ke file view katalog.blade.php yang baru kita bikin
+    return view('katalog', compact('produks'));
 });
 

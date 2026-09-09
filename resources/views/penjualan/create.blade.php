@@ -69,15 +69,15 @@
                         <table class="table w-full text-xs">
                             <thead>
                                 <tr class="bg-slate-50 text-slate-400">
-                                    <th class="py-3 px-3">Produk</th>
-                                    <th class="py-3 px-2">Harga</th>
-                                    <th class="py-3 px-2">Qty</th>
-                                    <th class="py-3 px-2">Subtotal</th>
+                                    <th class="py-3 px-3 text-left">Produk</th>
+                                    <th class="py-3 px-2 text-left">Harga</th>
+                                    <th class="py-3 px-2 text-center">Qty</th>
+                                    <th class="py-3 px-2 text-left">Subtotal</th>
                                     @php
                                         $isAdmin = auth()->check() && auth()->user()->role && strtoupper(auth()->user()->role->name) === 'ADMIN';
                                     @endphp
                                     @if($isAdmin)
-                                    <th class="py-3 px-2">Aksi</th>
+                                    <th class="py-3 px-2 text-center">Aksi</th>
                                     @endif
                                 </tr>
                             </thead>
@@ -89,13 +89,13 @@
                                         x-transition:enter-end="opacity-100">
                                         <td class="py-3 px-3 font-medium text-slate-700" x-text="item.nama"></td>
                                         <td class="py-3 px-2" x-text="'Rp ' + Number(item.harga_jual).toLocaleString('id-ID')"></td>
-                                        <td class="py-3 px-2">
-                                            <input type="number" x-model.number="item.qty" @change="updateQty(index)" min="1" class="w-12 px-1 py-1 text-center border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-rose-500">
+                                        <td class="py-3 px-2 text-center">
+                                            <input type="number" x-model.number="item.qty" @change="updateQty(index)" min="1" class="w-12 mx-auto px-1 py-1 text-center border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-rose-500">
                                         </td>
                                         <td class="py-3 px-2 font-semibold text-slate-800" x-text="'Rp ' + Number(item.harga_jual * item.qty).toLocaleString('id-ID')"></td>
                                         
                                         @if($isAdmin)
-                                        <td class="py-3 px-2">
+                                        <td class="py-3 px-2 text-center">
                                             <button @click="removeFromCart(index)" type="button" class="px-2 py-1 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white rounded-lg text-[10px] font-bold transition">Hapus</button>
                                         </td>
                                         @endif
@@ -121,8 +121,9 @@
                         <div class="space-y-2">
                             <label class="block text-xs font-semibold text-slate-600">Metode Pembayaran <span class="text-rose-500">*</span></label>
                             
-                            <!-- Hidden input untuk menyimpan value metode pembayaran ke Controller -->
+                            <!-- Hidden input untuk menyimpan value ke Controller -->
                             <input type="hidden" name="metode_pembayaran" x-model="metodePembayaran" required>
+                            <input type="hidden" name="uang_bayar" :value="parsedUangBayar">
 
                             <div class="grid grid-cols-3 gap-2">
                                 <!-- Opsi Cash -->
@@ -136,7 +137,7 @@
 
                                 <!-- Opsi QRIS -->
                                 <button type="button" 
-                                        @click="metodePembayaran = 'qris'"
+                                        @click="metodePembayaran = 'qris'; uangBayar = ''"
                                         :class="metodePembayaran === 'qris' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
                                         class="py-2.5 px-3 border rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
@@ -145,12 +146,33 @@
 
                                 <!-- Opsi Transfer -->
                                 <button type="button" 
-                                        @click="metodePembayaran = 'transfer'"
+                                        @click="metodePembayaran = 'transfer'; uangBayar = ''"
                                         :class="metodePembayaran === 'transfer' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
                                         class="py-2.5 px-3 border rounded-xl text-xs font-bold transition flex flex-col items-center justify-center gap-1">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
                                     Transfer
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- INPUT CASH & KEMBALIAN (Muncul Otomatis Jika Pilih Cash) -->
+                        <div x-show="metodePembayaran === 'cash'" x-collapse class="mt-4 space-y-4 p-4 bg-rose-50/50 border border-rose-100 rounded-2xl">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Uang Diberikan (Rp)</label>
+                                <input type="text" inputmode="numeric" x-model="uangBayar" placeholder="Contoh: 50000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm font-semibold">
+                                
+                                <!-- Peringatan jika uang kurang -->
+                                <span x-show="parsedUangBayar > 0 && parsedUangBayar < totalBayar" class="text-xs text-rose-500 font-bold mt-1 block">
+                                    Uang bayar kurang Rp <span x-text="(totalBayar - parsedUangBayar).toLocaleString('id-ID')"></span>!
+                                </span>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Kembalian (Rp)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500 font-bold">Rp</span>
+                                    <input type="text" readonly :value="kembalian.toLocaleString('id-ID')" class="w-full pl-12 pr-4 py-3 rounded-xl border border-green-200 bg-green-50 text-green-700 font-bold text-lg transition shadow-sm outline-none">
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -161,7 +183,7 @@
                     <input type="hidden" name="status" x-model="statusTransaksi">
 
                     <!-- Tombol Aksi dengan Loading State & Validasi Metode Pembayaran -->
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-3 mt-4">
                         <!-- Tombol Simpan Draft -->
                         <button type="submit" @click="statusTransaksi = 'OPEN'" :disabled="cart.length === 0 || !metodePembayaran || isSubmitting" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-amber-100 transition flex items-center justify-center gap-2 transform active:scale-95">
                             <span x-show="isSubmitting && statusTransaksi === 'OPEN'" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -169,14 +191,14 @@
                         </button>
 
                         <!-- Tombol Checkout -->
-                        <button type="submit" @click="statusTransaksi = 'COMPLETED'" :disabled="cart.length === 0 || !metodePembayaran || isSubmitting" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-emerald-100 transition flex items-center justify-center gap-2 transform active:scale-95">
+                        <button type="submit" @click="statusTransaksi = 'COMPLETED'" :disabled="cart.length === 0 || !metodePembayaran || isSubmitting || (metodePembayaran === 'cash' && parsedUangBayar < totalBayar)" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-emerald-100 transition flex items-center justify-center gap-2 transform active:scale-95">
                             <span x-show="isSubmitting && statusTransaksi === 'COMPLETED'" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                             <span x-text="isSubmitting && statusTransaksi === 'COMPLETED' ? 'Memproses...' : 'Checkout'"></span>
                         </button>
                     </div>
 
                     @if($isAdmin)
-                    <a href="{{ route('penjualan.index') }}" class="block text-center w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl font-bold text-sm transition">
+                    <a href="{{ route('penjualan.index') }}" class="block text-center w-full py-3 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-2xl font-bold text-sm transition mt-3">
                         Batalkan Transaksi
                     </a>
                     @endif
@@ -216,8 +238,10 @@
     </template>
 </div>
 
-<!-- Script Alpine.js -->
+<!-- Script Alpine.js (Ditambah plugin collapse) -->
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
 <script>
     function posApp() {
         return {
@@ -235,11 +259,26 @@
             })),
             cart: [],
             metodePembayaran: '',
+            uangBayar: '', 
             statusTransaksi: 'COMPLETED',
             
             get filteredProducts() {
                 if (this.search === '') return this.products;
                 return this.products.filter(p => p.nama.toLowerCase().includes(this.search.toLowerCase()));
+            },
+
+            // Konversi aman: Menghapus titik/koma agar "50.000" dibaca jadi 50000
+            get parsedUangBayar() {
+                if (!this.uangBayar) return 0;
+                let cleanValue = String(this.uangBayar).replace(/\./g, '').replace(/,/g, '');
+                let val = parseFloat(cleanValue);
+                return isNaN(val) ? 0 : val;
+            },
+
+            // Logika Kembalian
+            get kembalian() {
+                if (this.parsedUangBayar < this.totalBayar) return 0;
+                return this.parsedUangBayar - this.totalBayar;
             },
 
             addToCart(product) {

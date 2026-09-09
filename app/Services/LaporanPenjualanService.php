@@ -22,13 +22,14 @@ class LaporanPenjualanService
             'total_non_tunai' => $data->total_non_tunai ?? 0,
         ];
     }
-public function produkTerlarisHariini(int $limit = 5)
+
+    // Diubah menjadi akumulasi keseluruhan (All-Time) untuk produk terlaris
+    public function produkTerlarisAllTime(int $limit = 5)
     {
         return DB::table('item_penjualans')
             ->join('penjualans', 'penjualans.id', '=', 'item_penjualans.penjualans_id')
             ->join('produks', 'produks.id', '=', 'item_penjualans.produks_id')
-            ->whereDate('penjualans.created_at', Carbon::today())
-            ->where('penjualans.status', 'COMPLETED')
+            ->where('penjualans.status', 'COMPLETED') // Hanya menghitung dari transaksi yang statusnya sudah selesai
             ->select('produks.id', 'produks.nama', 'produks.stok', DB::raw('SUM(item_penjualans.kuantitas) as total_terjual'))
             ->groupBy('produks.id', 'produks.nama', 'produks.stok')
             ->orderByDesc('total_terjual')

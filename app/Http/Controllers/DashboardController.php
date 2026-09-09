@@ -22,7 +22,7 @@ class DashboardController extends Controller
             'tanggalHariIni' => Carbon::now(),
             'ringkasan' => $ringkasan,
             // Panggil method dari service yang sudah kamu buat, bukan query manual
-            'produkTerlaris' => $this->laporanPenjualanService->produkTerlarisHariini(),
+            'produkTerlaris' => $this->laporanPenjualanService->produkTerlarisAllTime(),
             'produkStokRendah' => $this->stokService->produkStokRendah(),
             'produkStokHabis' => $this->stokService->produkStokHabis(),
         ]);

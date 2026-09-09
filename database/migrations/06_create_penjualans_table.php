@@ -9,17 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
- public function up(): void
-{
-    Schema::create('penjualans', function (Blueprint $table) {
-       $table->id();
-$table->foreignId('user_id')->constrained('users', 'id')->restrictOnDelete();
-$table->integer('total_pembayaran');
-$table->string('metode_pembayaran');
-$table->enum('status', ['OPEN', 'COMPLETED']);
-$table->timestamps();
-});
-}
+    public function up(): void
+    {
+        Schema::create('penjualans', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained('users', 'id')->restrictOnDelete();
+            $table->integer('total_pembayaran');
+            $table->integer('uang_bayar')->default(0); 
+            $table->string('metode_pembayaran');
+            $table->enum('status', ['OPEN', 'COMPLETED']);
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

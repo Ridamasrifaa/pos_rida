@@ -13,13 +13,16 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+ public function index(Request $request)
     {
         $search = $request->input('search');
         
         $products = Produk::with('jenis', 'user')
             ->when($search, function ($query, $search) {
-                return $query->where('nama', 'like', "%{$search}%");
+                return $query->where('nama', 'like', "%{$search}%")
+                             ->orWhereHas('jenis', function ($q) use ($search) {
+                                 $q->where('nama_jenis', 'like', "%{$search}%");
+                             });
             })
             ->orderBy('id', 'asc')
             ->paginate(10)

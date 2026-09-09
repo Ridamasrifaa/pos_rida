@@ -4,7 +4,8 @@
 
 @section('content')
 
-<div class="w-full max-w-3xl mx-auto space-y-6 font-sans py-6 px-4 animate-fadeIn">
+<!-- Wrapper dengan transisi smooth bawaan Tailwind -->
+<div id="page-wrapper" class="w-full max-w-3xl mx-auto space-y-6 font-sans py-6 px-4 opacity-0 translate-y-3 transition-all duration-500 ease-out">
     <!-- Header Halaman -->
     <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200">
         <h1 class="text-2xl font-bold tracking-tight text-slate-900">Tambah Produk Baru</h1>
@@ -47,13 +48,13 @@
             <!-- Input Nama -->
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Nama Produk</label>
-                <input type="text" name="nama" value="{{ old('nama') }}" placeholder="Contoh: Kopi Susu Aren" class="w-full px-4 py-2.5 rounded-xl border @error('nama') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
+                <input type="text" name="nama" id="nama_produk" value="{{ old('nama') }}" placeholder="Contoh: Kopi Susu Aren" class="w-full px-4 py-2.5 rounded-xl border @error('nama') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
                 @error('nama')
                     <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
                 @enderror
             </div>
 
-            <!-- Input Jenis Produk (Dropdown Style Dipermak Lebih Clean & Modern) -->
+            <!-- Input Jenis Produk -->
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Jenis Produk</label>
                 <div class="relative">
@@ -118,8 +119,20 @@
     </div>
 </div>
 
-<!-- Script untuk Preview Gambar -->
+<!-- Script untuk Animasi Masuk, Preview Gambar & Smart Suggestion -->
 <script>
+    // Efek transisi masuk halaman yang mulus menggunakan JS kecil
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            let wrapper = document.getElementById('page-wrapper');
+            if(wrapper) {
+                wrapper.classList.remove('opacity-0', 'translate-y-3');
+                wrapper.classList.add('opacity-100', 'translate-y-0');
+            }
+        }, 20);
+    });
+
+    // 1. Fungsi Preview Gambar
     function previewImage(event) {
         let reader = new FileReader();
         let imagePreview = document.getElementById('image-preview');
@@ -135,16 +148,39 @@
             reader.readAsDataURL(event.target.files[0]);
         }
     }
-</script>
 
-<style>
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(6px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeIn {
-        animation: fadeIn 0.3s ease-out forwards;
-    }
-</style>
+    // 2. Fungsi Rekomendasi Jenis Otomatis (Smart Suggestion) saat mengetik nama produk
+    document.getElementById('nama_produk').addEventListener('input', function() {
+        let nama = this.value.toLowerCase();
+        let selectJenis = document.getElementById('jenis_id');
+
+        let keywordMap = {
+            'makanan': ['mie', 'nasi', 'roti', 'snack', 'chiki', 'biskuit', 'keripik', 'makanan'],
+            'minuman': ['milo', 'teh', 'kopi', 'jus', 'susu', 'aqua', 'sprite', 'cola', 'minuman'],
+            'pembersih': ['sabun', 'rinso', 'deterjen', 'sunlight', 'shampo', 'pewangi', 'pasta gigi', 'pembersih', 'mandi']
+        };
+
+        let targetKategori = null;
+
+        for (let kategori in keywordMap) {
+            for (let word of keywordMap[kategori]) {
+                if (nama.includes(word)) {
+                    targetKategori = kategori;
+                    break;
+                }
+            }
+            if (targetKategori) break;
+        }
+
+        if (targetKategori) {
+            for (let option of selectJenis.options) {
+                if (option.text.toLowerCase().includes(targetKategori)) {
+                    selectJenis.value = option.value;
+                    break;
+                }
+            }
+        }
+    });
+</script>
 
 @endsection

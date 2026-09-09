@@ -4,7 +4,8 @@
 
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
-    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex justify-between items-center">
+    <!-- TAMPILAN NORMAL DI WEB -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex justify-between items-center print:hidden">
         <div>
             <h1 class="text-2xl font-bold text-slate-800">Detail Transaksi #{{ $penjualan->id }}</h1>
             <p class="text-sm text-slate-500 mt-0.5">Informasi lengkap rincian barang dan pembayaran.</p>
@@ -12,7 +13,6 @@
         <div class="flex items-center gap-3">
             <a href="{{ route('penjualan.index') }}" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-sm font-bold transition">Kembali</a>
             
-            <!-- Tombol Cetak Struk (Tema Merah & Ikon SVG) -->
             <button onclick="window.print()" type="button" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-bold text-sm shadow-sm transition flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -22,8 +22,8 @@
         </div>
     </div>
 
-    <!-- AREA UTAMA YANG AKAN DICETAK (ID print-area) -->
-    <div id="print-area" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+    <!-- AREA UTAMA DI WEB -->
+    <div id="print-area" class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6 print:hidden">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-2xl text-sm">
             <div>
                 <span class="block text-slate-400 text-xs font-semibold">Kasir</span>
@@ -73,34 +73,180 @@
             </div>
         </div>
 
-        <div class="flex justify-between items-center pt-4 border-t border-slate-100">
-            <span class="font-bold text-slate-600">Total Pembayaran:</span>
-            <span class="text-xl font-extrabold text-rose-600">Rp {{ number_format($penjualan->total_pembayaran, 0, ',', '.') }}</span>
+        <div class="pt-4 border-t border-slate-100 space-y-2">
+            <div class="flex justify-between items-center text-sm">
+                <span class="font-medium text-slate-500">Total Pembayaran:</span>
+                <span class="font-bold text-slate-800">Rp {{ number_format($penjualan->total_pembayaran, 0, ',', '.') }}</span>
+            </div>
+
+            @if(strtolower($penjualan->metode_pembayaran) === 'cash')
+            <div class="flex justify-between items-center text-sm">
+                <span class="font-medium text-slate-500">Uang Diberikan (Tunai):</span>
+                <span class="font-bold text-slate-800">
+                    {{ $penjualan->uang_bayar ? 'Rp ' . number_format($penjualan->uang_bayar, 0, ',', '.') : 'Tidak tercatat / Pas' }}
+                </span>
+            </div>
+            <div class="flex justify-between items-center text-sm">
+                <span class="font-medium text-slate-500">Kembalian:</span>
+                <span class="font-bold text-green-600">
+                    Rp {{ number_format(max(0, ($penjualan->uang_bayar ?? $penjualan->total_pembayaran) - $penjualan->total_pembayaran), 0, ',', '.') }}
+                </span>
+            </div>
+            @endif
+
+            <div class="flex justify-between items-center pt-2 border-t border-dashed border-slate-200">
+                <span class="font-bold text-slate-600 text-base">Status Akhir:</span>
+                <span class="text-xl font-extrabold text-rose-600">Rp {{ number_format($penjualan->total_pembayaran, 0, ',', '.') }}</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- FORMAT STRUK KASIR PROFESIONAL (BERSIH)    -->
+    <!-- ========================================== -->
+    <div id="thermal-receipt" class="hidden">
+        <div class="store-name">TOKO GO</div>
+        <div class="store-address">Jl. Raya Tasikmalaya No. 123<br>Telp: 0812-3456-7890</div>
+        
+        <div class="trx-details">
+            <div>No. Nota : #{{ $penjualan->id }}</div>
+            <div>Waktu    : {{ $penjualan->created_at->format('d/m/Y H:i') }}</div>
+            <div>Kasir    : {{ $penjualan->user->name ?? 'Admin' }}</div>
+            <div>Metode   : <span style="text-transform: uppercase;">{{ $penjualan->metode_pembayaran }}</span></div>
+        </div>
+
+        <div class="dashed-line">-------------------------------------</div>
+
+        <table class="item-table">
+            @foreach($penjualan->itemPenjualans as $item)
+            <tr>
+                <td colspan="2" class="item-name">{{ $item->produk->nama ?? 'Produk' }}</td>
+            </tr>
+            <tr>
+                <td class="item-calc">
+                    {{ $item->kuantitas }} x {{ number_format($item->harga_satuan, 0, ',', '.') }}
+                </td>
+                <td class="item-subtotal">
+                    Rp {{ number_format($item->subtotal, 0, ',', '.') }}
+                </td>
+            </tr>
+            @endforeach
+        </table>
+
+        <div class="dashed-line">-------------------------------------</div>
+
+        <table class="summary-table">
+            <tr>
+                <td class="bold">TOTAL</td>
+                <td class="text-right bold">Rp {{ number_format($penjualan->total_pembayaran, 0, ',', '.') }}</td>
+            </tr>
+            @if(strtolower($penjualan->metode_pembayaran) === 'cash')
+            <tr>
+                <td>Tunai</td>
+                <td class="text-right">Rp {{ number_format($penjualan->uang_bayar ?? $penjualan->total_pembayaran, 0, ',', '.') }}</td>
+            </tr>
+            <tr>
+                <td>Kembali</td>
+                <td class="text-right">Rp {{ number_format(max(0, ($penjualan->uang_bayar ?? $penjualan->total_pembayaran) - $penjualan->total_pembayaran), 0, ',', '.') }}</td>
+            </tr>
+            @endif
+        </table>
+
+        <div class="dashed-line">-------------------------------------</div>
+
+        <div class="footer-msg">
+            TERIMA KASIH TELAH BERBELANJA<br>
+            BARANG YANG SUDAH DIBELI TIDAK DAPAT<br>
+            DITUKAR / DIKEMBALIKAN<br><br>
+            === LAYANAN KONSUMEN TOKOGO ===
         </div>
     </div>
 </div>
 
-<!-- CSS KHUSUS PRINT: Hanya bagian #print-area saja yang dicetak -->
+<!-- STYLING CSS KHUSUS CETAK STRUK KASIR -->
 <style>
 @media print {
+    @page {
+        margin: 0;
+        size: 58mm auto;
+    }
     body * {
         visibility: hidden;
     }
-    #print-area, #print-area * {
+    #thermal-receipt, #thermal-receipt * {
         visibility: visible;
     }
-    #print-area {
+    #thermal-receipt {
+        display: block !important;
         position: absolute;
         left: 0;
         top: 0;
-        width: 100%;
-        border: none;
-        box-shadow: none;
-        padding: 0;
+        width: 54mm;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 11px;
+        line-height: 1.2;
+        color: #000;
+        background: #fff;
+        padding: 2mm;
     }
-    /* Sembunyikan tombol kembali dan tombol cetak saat proses cetak berjalan */
-    .btn, button {
-        display: none !important;
+    .store-name {
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 2px;
+    }
+    .store-address {
+        text-align: center;
+        font-size: 9px;
+        margin-bottom: 6px;
+    }
+    .trx-details {
+        font-size: 10px;
+        margin-bottom: 4px;
+    }
+    .dashed-line {
+        text-align: center;
+        font-size: 10px;
+        letter-spacing: -1px;
+        margin: 3px 0;
+    }
+    .item-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 10px;
+    }
+    .item-name {
+        font-weight: bold;
+        padding-top: 2px;
+    }
+    .item-calc {
+        color: #333;
+    }
+    .item-subtotal {
+        text-align: right;
+        font-weight: bold;
+    }
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+        margin-top: 2px;
+    }
+    .summary-table td {
+        padding: 1px 0;
+    }
+    .bold {
+        font-weight: bold;
+        font-size: 11px;
+    }
+    .text-right {
+        text-align: right;
+    }
+    .footer-msg {
+        text-align: center;
+        font-size: 9px;
+        margin-top: 6px;
     }
 }
 </style>

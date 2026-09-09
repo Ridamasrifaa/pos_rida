@@ -11,46 +11,46 @@ use App\Models\Produk;
 
 class PenjualanController extends Controller
 {
-  public function index(Request $request)
-{
-    $search = $request->input('search');
-    $user = auth()->user();
-    
-    // Ambil nama role user (sesuaikan dengan struktur database Anda)
-    $userRole = $user->role ? strtoupper($user->role->name) : '';
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $user = auth()->user();
+        
+        // Ambil nama role user (sesuaikan dengan struktur database Anda)
+        $userRole = $user->role ? strtoupper($user->role->name) : '';
 
-    $query = Penjualan::with('user');
+        $query = Penjualan::with('user');
 
-    // Jika bukan Admin (misal: Kasir), batasi hanya transaksi miliknya sendiri
-    if ($userRole !== 'ADMIN') {
-        $query->where('user_id', $user->id);
+        // Jika bukan Admin (misal: Kasir), batasi hanya transaksi miliknya sendiri
+        if ($userRole !== 'ADMIN') {
+            $query->where('user_id', $user->id);
+        }
+
+        // Filter pencarian (Search)
+        $penjualans = $query->when($search, function ($q, $search) {
+                $q->where(function ($subQuery) use ($search) {
+                    $subQuery->where('id', 'like', "%{$search}%")
+                             ->orWhere('status', 'like', "%{$search}%")
+                             ->orWhere('metode_pembayaran', 'like', "%{$search}%")
+                             ->orWhereHas('user', function ($userQuery) use ($search) {
+                                 $userQuery->where('name', 'like', "%{$search}%");
+                             });
+                });
+            })
+            ->latest()
+            ->paginate(10);
+
+        // Cek apakah ini permintaan AJAX dari Javascript fetch
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'html' => view('penjualan.partials.table-rows', compact('penjualans'))->render(),
+                'total' => $penjualans->total(),
+                'pagination' => (string) $penjualans->links()
+            ]);
+        }
+
+        return view('penjualan.index', compact('penjualans'));
     }
-
-    // Filter pencarian (Search)
-    $penjualans = $query->when($search, function ($q, $search) {
-            $q->where(function ($subQuery) use ($search) {
-                $subQuery->where('id', 'like', "%{$search}%")
-                         ->orWhere('status', 'like', "%{$search}%")
-                         ->orWhere('metode_pembayaran', 'like', "%{$search}%")
-                         ->orWhereHas('user', function ($userQuery) use ($search) {
-                             $userQuery->where('name', 'like', "%{$search}%");
-                         });
-            });
-        })
-        ->latest()
-        ->paginate(10);
-
-    // Cek apakah ini permintaan AJAX dari Javascript fetch
-    if ($request->ajax() || $request->wantsJson()) {
-        return response()->json([
-            'html' => view('penjualan.partials.table-rows', compact('penjualans'))->render(),
-            'total' => $penjualans->total(),
-            'pagination' => (string) $penjualans->links()
-        ]);
-    }
-
-    return view('penjualan.index', compact('penjualans'));
-}
 
     public function create()
     {
@@ -63,6 +63,7 @@ class PenjualanController extends Controller
         $request->validate([
             'metode_pembayaran' => 'required',
             'total_pembayaran' => 'required|numeric',
+            'uang_bayar' => 'nullable|numeric', // Validasi uang bayar
             'items' => 'required',
         ]);
 
@@ -74,10 +75,11 @@ class PenjualanController extends Controller
 
         DB::beginTransaction();
         try {
-            // 1. Simpan data utama ke tabel penjualans
+            // 1. Simpan data utama ke tabel penjualans (Termasuk uang_bayar)
             $penjualan = Penjualan::create([
                 'user_id' => auth()->id(),
                 'total_pembayaran' => $request->total_pembayaran,
+                'uang_bayar' => $request->uang_bayar ?? 0, // <-- Diperbaiki agar tersimpan
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status' => $request->status,
             ]);
@@ -139,6 +141,7 @@ class PenjualanController extends Controller
             'metode_pembayaran' => 'required',
             'status' => 'required',
             'total_pembayaran' => 'required|numeric',
+            'uang_bayar' => 'nullable|numeric',
             'items' => 'required',
         ]);
 
@@ -164,11 +167,12 @@ class PenjualanController extends Controller
             // 2. Hapus item lama
             $penjualan->itemPenjualans()->delete();
 
-            // 3. Update data utama penjualan
+            // 3. Update data utama penjualan (Termasuk uang_bayar)
             $penjualan->update([
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status' => $request->status,
                 'total_pembayaran' => $request->total_pembayaran,
+                'uang_bayar' => $request->uang_bayar ?? 0, // <-- Diperbaiki agar terupdate
             ]);
 
             // 4. Masukkan item baru & kurangi stok produk yang baru

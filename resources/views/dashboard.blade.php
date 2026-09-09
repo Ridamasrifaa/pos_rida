@@ -139,7 +139,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="text-center py-10 text-slate-500 font-normal">Belum ada data penjualan produk hari ini.</td>
+                                <td colspan="4" class="text-center py-10 text-slate-500 font-normal">Belum ada data penjualan produk yang tercatat.</td>
                             </tr>
                         @endforelse
                     </tbody>
