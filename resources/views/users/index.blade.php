@@ -2,7 +2,7 @@
 
 
 
-@section('title', 'Manajemen Users - POS Rida')
+@section('title', 'Kelola Pengguna - POS Rida')
 
 
 
@@ -30,7 +30,7 @@
 
             <div>
 
-                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Manajemen Users</h1>
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Kelola Pengguna</h1>
 
                 <p class="text-sm font-normal text-slate-600 mt-0.5">Daftar seluruh pengguna sistem, hak akses, dan informasi akun.</p>
 
@@ -50,7 +50,7 @@
 
                 </svg>
 
-                Tambah User Baru
+                Tambah Pengguna Baru
 
             </a>
 
