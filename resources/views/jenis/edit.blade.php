@@ -5,16 +5,13 @@
 @section('content')
 
 <div class="w-full max-w-4xl mx-auto space-y-6 font-sans py-6 px-4 animate-fadeIn">
-
-    <!-- Header Halaman -->
     <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200 transition-all duration-300 hover:shadow-lg">
         <div>
             <h1 class="text-2xl font-bold tracking-tight text-slate-900">Edit Jenis Produk</h1>
-            <p class="text-sm font-normal text-slate-600 mt-0.5">Perbarui informasi kategori atau jenis produk inventaris.</p>
+            <p class="text-sm font-normal text-slate-600 mt-0.5">Perbarui informasi kategori atau jenis produk beserta markup.</p>
         </div>
     </div>
 
-    <!-- Form Edit Jenis Produk -->
     <div class="bg-white rounded-3xl shadow-md border border-slate-200 p-8 transition-all duration-300 hover:shadow-lg">
         <form action="{{ route('jenis.update', $jenis->id) }}" method="POST" class="space-y-5">
             @csrf
@@ -22,8 +19,21 @@
 
             <div class="space-y-2">
                 <label for="nama_jenis" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Nama Jenis Produk</label>
-                <input type="text" name="nama_jenis" id="nama_jenis" value="{{ old('nama_jenis', $jenis->nama_jenis) }}" placeholder="Contoh: Makanan, Minuman, Elektronik..." required class="w-full px-4 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 transition-all duration-200 shadow-sm">
+                <input type="text" name="nama_jenis" id="nama_jenis" value="{{ old('nama_jenis', $jenis->nama_jenis) }}" placeholder="Contoh: Makanan, Minuman..." required class="w-full px-4 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 transition-all duration-200 shadow-sm">
                 @error('nama_jenis')
+                    <span class="text-xs text-rose-600 mt-1 block font-medium">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="space-y-2">
+                <label for="markup_percentage" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Markup Keuntungan (%)</label>
+                <div class="relative">
+                    <input type="number" step="0.01" name="markup_percentage" id="markup_percentage" value="{{ old('markup_percentage', $jenis->markup_percentage) }}" placeholder="15" required class="w-full px-4 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 transition-all duration-200 shadow-sm pr-12">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400 font-semibold text-sm">
+                        %
+                    </div>
+                </div>
+                @error('markup_percentage')
                     <span class="text-xs text-rose-600 mt-1 block font-medium">{{ $message }}</span>
                 @enderror
             </div>
@@ -38,7 +48,6 @@
             </div>
         </form>
     </div>
-
 </div>
 
 <style>
@@ -50,5 +59,4 @@
         animation: fadeIn 0.3s ease-out forwards;
     }
 </style>
-
 @endsection

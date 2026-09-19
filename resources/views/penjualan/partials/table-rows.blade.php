@@ -8,7 +8,7 @@
         <td class="py-3.5 px-4 truncate max-w-[150px]">{{ $penjualan->user->name ?? 'Unknown' }}</td>
         <td class="py-3.5 px-4 font-semibold text-slate-800">Rp {{ number_format($penjualan->total_pembayaran, 0, ',', '.') }}</td>
         <td class="py-3.5 px-4">
-            <span class="badge badge-ghost uppercase text-xs font-semibold">{{ $penjualan->metode_pembayaran }}</span>
+            <span class=" uppercase text-xs font-semibold">{{ $penjualan->metode_pembayaran }}</span>
         </td>
         <td class="py-3.5 px-4">
             <span class="badge {{ strtolower($penjualan->status) == 'completed' || strtolower($penjualan->status) == 'selesai' ? 'badge-success text-white' : 'badge-warning' }} text-xs font-semibold">

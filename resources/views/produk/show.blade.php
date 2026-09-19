@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="w-full max-w-3xl mx-auto space-y-6 font-sans py-6 px-4 animate-fadeIn">
+<div id="page-wrapper" class="w-full max-w-3xl mx-auto space-y-6 font-sans py-6 px-4 opacity-0 translate-y-3 transition-all duration-500 ease-out">
     <!-- Header Halaman -->
     <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-200">
         <h1 class="text-2xl font-bold tracking-tight text-slate-900">Detail Produk</h1>
@@ -17,7 +17,7 @@
         <!-- Foto Produk -->
         <div>
             <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Foto Produk</label>
-            <div class="w-20 h-20 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm flex-shrink-0">
+            <div class="w-24 h-24 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden shadow-sm flex-shrink-0">
                 @if ($product->foto)
                     <img src="{{ asset('storage/' . $product->foto) }}" alt="{{ $product->nama }}" class="w-full h-full object-cover">
                 @else
@@ -34,11 +34,20 @@
             </div>
         </div>
 
-        <!-- Jenis Produk -->
-        <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Jenis Produk</label>
-            <div class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800">
-                {{ $product->jenis->nama_jenis ?? '-' }}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Jenis Produk -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Jenis Produk</label>
+                <div class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800">
+                    {{ $product->jenis->nama_jenis ?? '-' }}
+                </div>
+            </div>
+            <!-- Suplier Produk -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Suplier / Distributor</label>
+                <div class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-800">
+                    {{ $product->supplier->name ?? 'Tidak ada suplier' }}
+                </div>
             </div>
         </div>
 
@@ -75,14 +84,16 @@
     </div>
 </div>
 
-<style>
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(6px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fadeIn {
-        animation: fadeIn 0.3s ease-out forwards;
-    }
-</style>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        setTimeout(function() {
+            let wrapper = document.getElementById('page-wrapper');
+            if(wrapper) {
+                wrapper.classList.remove('opacity-0', 'translate-y-3');
+                wrapper.classList.add('opacity-100', 'translate-y-0');
+            }
+        }, 20);
+    });
+</script>
 
 @endsection

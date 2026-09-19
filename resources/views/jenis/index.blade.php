@@ -59,6 +59,7 @@
                         <th scope="col" class="py-4 px-4 w-16 text-center">No</th>
                         <th scope="col" class="py-4 px-4">Admin / Kasir</th>
                         <th scope="col" class="py-4 px-4">Nama Jenis</th>
+                        <th scope="col" class="py-4 px-4">Markup</th> <!-- Kolom yang tadinya kurang -->
                         <th scope="col" class="py-4 px-4 text-center">Aksi</th>
                     </tr>
                 </thead>

@@ -14,6 +14,7 @@
                 @if(Auth::user() && Auth::user()->role->name === 'admin')
                     <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'active bg-rose-50 text-rose-600' : '' }}">Pengguna</a></li>
                     <li><a href="{{ route('jenis.index') }}" class="{{ request()->routeIs('jenis*') ? 'active bg-rose-50 text-rose-600' : '' }}">Jenis</a></li>
+                    <li><a href="{{ route('suppliers.index') }}" class="{{ request()->routeIs('suppliers*') ? 'active bg-rose-50 text-rose-600' : '' }}">Suplier</a></li>
                 @endif
 
                 <li><a href="{{ route('produk') }}" class="{{ request()->routeIs('produk*') ? 'active bg-rose-50 text-rose-600' : '' }}">Produk</a></li>
@@ -41,6 +42,7 @@
             @if(Auth::user() && Auth::user()->role->name === 'admin')
                 <li><a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Pengguna</a></li>
                 <li><a href="{{ route('jenis.index') }}" class="{{ request()->routeIs('jenis*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Jenis</a></li>
+                <li><a href="{{ route('suppliers.index') }}" class="{{ request()->routeIs('suppliers*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Suplier</a></li>
             @endif
 
             <li><a href="{{ route('produk') }}" class="{{ request()->routeIs('produk*') ? 'bg-rose-50 text-rose-600' : 'text-slate-600 hover:bg-slate-50' }}">Produk</a></li>

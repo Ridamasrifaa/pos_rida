@@ -11,7 +11,7 @@ class Jenis extends Model
     use HasFactory;
 
     protected $table = 'jenis';
-    protected $fillable = ['user_id','nama_jenis'];
+    protected $fillable = ['user_id','nama_jenis','markup_percentage'];
 
 
     public function user()

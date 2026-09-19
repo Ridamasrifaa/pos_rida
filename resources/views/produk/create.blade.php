@@ -54,19 +54,41 @@
                 @enderror
             </div>
 
-            <!-- Input Jenis Produk -->
+            <!-- Input Suplier -->
+            <div>
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Suplier / Distributor</label>
+                <div class="relative">
+                    <select name="supplier_id" id="supplier_id" class="w-full px-4 py-2.5 rounded-xl border @error('supplier_id') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 appearance-none transition cursor-pointer pr-10 shadow-sm">
+                        <option value="" selected disabled class="text-slate-400">Pilih suplier...</option>
+                        @foreach ($suppliers as $supplier)
+                            <option value="{{ $supplier->id }}" {{ old('supplier_id') == $supplier->id ? 'selected' : '' }} class="py-2 text-slate-800 bg-white">
+                                {{ $supplier->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                </div>
+                @error('supplier_id')
+                    <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <!-- Input Jenis Produk (Dilengkapi data-markup) -->
             <div>
                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Jenis Produk</label>
                 <div class="relative">
                     <select name="jenis_id" id="jenis_id" required class="w-full px-4 py-2.5 rounded-xl border @error('jenis_id') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 appearance-none transition cursor-pointer pr-10 shadow-sm">
                         <option value="" selected disabled class="text-slate-400">Pilih jenis produk...</option>
                         @foreach ($data_jenis as $jenis)
-                            <option value="{{ $jenis->id }}" {{ old('jenis_id') == $jenis->id ? 'selected' : '' }} class="py-2 text-slate-800 bg-white">
-                                {{ $jenis->nama_jenis }}
+                            <option value="{{ $jenis->id }}" data-markup="{{ $jenis->markup_percentage ?? 15 }}" {{ old('jenis_id') == $jenis->id ? 'selected' : '' }} class="py-2 text-slate-800 bg-white">
+                                {{ $jenis->nama_jenis }} (Markup: {{ $jenis->markup_percentage ?? 15 }}%)
                             </option>
                         @endforeach
                     </select>
-                    <!-- Custom Chevron Icon -->
                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
@@ -82,15 +104,15 @@
                 <!-- Input Harga Beli -->
                 <div>
                     <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Harga Beli (Rp)</label>
-                    <input type="number" name="harga_beli" value="{{ old('harga_beli') }}" placeholder="Contoh: 10000" class="w-full px-4 py-2.5 rounded-xl border @error('harga_beli') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
+                    <input type="number" name="harga_beli" id="harga_beli" value="{{ old('harga_beli') }}" placeholder="Contoh: 10000" class="w-full px-4 py-2.5 rounded-xl border @error('harga_beli') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
                     @error('harga_beli')
                         <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
                     @enderror
                 </div>
                 <!-- Input Harga Jual -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Harga Jual (Rp)</label>
-                    <input type="number" name="harga_jual" value="{{ old('harga_jual') }}" placeholder="Contoh: 15000" class="w-full px-4 py-2.5 rounded-xl border @error('harga_jual') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Harga Jual (Rp) <span class="text-[10px] text-rose-500 lowercase font-normal"></span></label>
+                    <input type="number" name="harga_jual" id="harga_jual" value="{{ old('harga_jual') }}" placeholder="Contoh: 11500" class="w-full px-4 py-2.5 rounded-xl border @error('harga_jual') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
                     @error('harga_jual')
                         <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>
                     @enderror
@@ -119,9 +141,8 @@
     </div>
 </div>
 
-<!-- Script untuk Animasi Masuk, Preview Gambar & Smart Suggestion -->
+<!-- Script untuk Animasi Masuk, Preview Gambar, Smart Suggestion & Kalkulator Markup Otomatis -->
 <script>
-    // Efek transisi masuk halaman yang mulus menggunakan JS kecil
     document.addEventListener("DOMContentLoaded", function() {
         setTimeout(function() {
             let wrapper = document.getElementById('page-wrapper');
@@ -149,7 +170,28 @@
         }
     }
 
-    // 2. Fungsi Rekomendasi Jenis Otomatis (Smart Suggestion) saat mengetik nama produk
+    // 2. Kalkulator Markup Harga Jual Otomatis
+    const jenisSelect = document.getElementById('jenis_id');
+    const hargaBeliInput = document.getElementById('harga_beli');
+    const hargaJualInput = document.getElementById('harga_jual');
+
+    function hitungHargaJualOtomatis() {
+        const selectedOption = jenisSelect.options[jenisSelect.selectedIndex];
+        const markup = parseFloat(selectedOption.getAttribute('data-markup')) || 0;
+        const hargaBeli = parseFloat(hargaBeliInput.value) || 0;
+
+        if (hargaBeli > 0 && markup > 0) {
+            let hasil = hargaBeli + (hargaBeli * (markup / 100));
+            // Bulatkan ke ratusan terdekat
+            hasil = Math.ceil(hasil / 100) * 100;
+            hargaJualInput.value = hasil;
+        }
+    }
+
+    jenisSelect.addEventListener('change', hitungHargaJualOtomatis);
+    hargaBeliInput.addEventListener('input', hitungHargaJualOtomatis);
+
+    // 3. Fungsi Rekomendasi Jenis Otomatis (Smart Suggestion) saat mengetik nama produk
     document.getElementById('nama_produk').addEventListener('input', function() {
         let nama = this.value.toLowerCase();
         let selectJenis = document.getElementById('jenis_id');
@@ -176,6 +218,7 @@
             for (let option of selectJenis.options) {
                 if (option.text.toLowerCase().includes(targetKategori)) {
                     selectJenis.value = option.value;
+                    hitungHargaJualOtomatis(); // Hitung ulang harga jual berdasarkan jenis yang terpilih otomatis
                     break;
                 }
             }

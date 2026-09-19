@@ -7,6 +7,7 @@ use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -67,11 +68,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/tentang', function () {
         return view('tentang');
     })->name('tentang');
-});Route::get('/', function () {
+});
+Route::get('/', function () {
     // Mengambil semua data produk dari database tabel produk
     $produks = App\Models\Produk::all(); 
     
     // Menampilkan ke file view katalog.blade.php yang baru kita bikin
     return view('katalog', compact('produks'));
 });
+Route::resource('suppliers', SupplierController::class);
 

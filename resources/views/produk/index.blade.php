@@ -94,7 +94,7 @@
                                 <div class="font-normal text-slate-800">{{ $product->nama }}</div>
                             </td>
                             <td class="py-4 px-4">
-                                <span class="inline-block px-3 py-1 bg-slate-100 text-slate-800 rounded-xl text-xs font-semibold whitespace-nowrap">
+                                <span class="inline-block px-3 py-1 text-slate-800 rounded-xl text-xs font-semibold whitespace-nowrap">
                                     {{ $product->jenis->nama_jenis ?? '-' }}
                                 </span>
                             </td>
@@ -110,7 +110,7 @@
                                 Rp {{ number_format($product->harga_jual ?? 0, 0, ',', '.') }}
                             </td>
                             <td class="py-4 px-4 whitespace-nowrap">
-                                <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold {{ $product->stok > 5 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' }}">
+                                <span class="inline-block px-3 py-1 rounded-xl text-xs font-semibold {{ $product->stok > 5 ? 'text-emerald-800' : 'text-amber-800' }}">
                                     {{ $product->stok }} Pcs
                                 </span>
                             </td>

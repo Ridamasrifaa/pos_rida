@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jenis', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users','id');
-             $table->string('nama_jenis');
-             $table->decimal('markup_percentage', 5, 2)->default(15.00);
-            $table->timestamps();
+        Schema::table('jenis', function (Blueprint $table) {
+            $table->decimal('markup_percentage', 5, 2)->default(15.00)->after('nama_jenis');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jenis');
+        Schema::table('jenis', function (Blueprint $table) {
+            $table->dropColumn('markup_percentage');
+        });
     }
 };

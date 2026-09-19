@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk; 
 use App\Models\Jenis;
+use App\Models\Supplier; // <-- Jangan lupa import model Supplier
 use Illuminate\Http\Request;
 use App\Http\Requests\Produk\StoreRequest;
 use Illuminate\Support\Facades\Auth;
@@ -13,16 +14,16 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
- public function index(Request $request)
+    public function index(Request $request)
     {
         $search = $request->input('search');
         
-        $products = Produk::with('jenis', 'user')
+        $products = Produk::with('jenis', 'user', 'supplier') // <-- Load relasi supplier jika ada
             ->when($search, function ($query, $search) {
                 return $query->where('nama', 'like', "%{$search}%")
-                             ->orWhereHas('jenis', function ($q) use ($search) {
-                                 $q->where('nama_jenis', 'like', "%{$search}%");
-                             });
+                           ->orWhereHas('jenis', function ($q) use ($search) {
+                               $q->where('nama_jenis', 'like', "%{$search}%");
+                           });
             })
             ->orderBy('id', 'asc')
             ->paginate(10)
@@ -34,7 +35,6 @@ class ProductController extends Controller
 
             if ($products->count() > 0) {
                 foreach ($products as $index => $product) {
-                    // Menghitung nomor urut asli di database agar posisi nomor produk tetap konsisten meski di-search
                     $no = Produk::where('id', '<=', $product->id)->count();
                     
                     $fotoUrl = null;
@@ -102,40 +102,43 @@ class ProductController extends Controller
         }
 
         $data_jenis = Jenis::all(); 
-        return view('produk.create', compact('data_jenis'));
+        $suppliers = Supplier::all(); // <-- Ambil data suplier
+        return view('produk.create', compact('data_jenis', 'suppliers'));
     }
 
-public function store(Request $request)
-{
-    $request->validate([
-        'nama'       => 'required|string|max:255',
-        'jenis_id'   => 'required|exists:jenis,id',
-        'harga_beli' => 'required|numeric|min:0|max:999999999999',
-        'harga_jual' => 'required|numeric|min:0|max:999999999999',
-        'stok'       => 'required|integer|min:0',
-        'foto'       => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-    ], [
-        'foto.required'    => 'Foto produk wajib diunggah!',
-        'foto.image'       => 'File harus berupa gambar.',
-        'foto.mimes'       => 'Format foto harus berjenis: jpeg, png, jpg, atau webp.',
-        'foto.max'         => 'Ukuran foto maksimal adalah 2MB.',
-        'harga_beli.max'   => 'Harga beli terlalu besar.',
-        'harga_jual.max'   => 'Harga jual terlalu besar.',
-    ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama'        => 'required|string|max:255',
+            'jenis_id'    => 'required|exists:jenis,id',
+            'supplier_id' => 'nullable|exists:suppliers,id', 
+            'harga_beli'  => 'required|numeric|min:0|max:999999999999',
+            'harga_jual'  => 'required|numeric|gt:harga_beli|max:999999999999', 
+            'stok'        => 'required|integer|min:0',
+            'foto'        => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ], [
+            'foto.required'    => 'Foto produk wajib diunggah!',
+            'foto.image'       => 'File harus berupa gambar.',
+            'foto.mimes'       => 'Format foto harus berjenis: jpeg, png, jpg, atau webp.',
+            'foto.max'         => 'Ukuran foto maksimal adalah 2MB.',
+            'harga_jual.gt'    => 'Harga jual wajib lebih tinggi dari harga beli!',
+            'harga_beli.max'   => 'Harga beli terlalu besar.',
+            'harga_jual.max'   => 'Harga jual terlalu besar.',
+        ]);
 
-    $data = $request->except('foto');
-    $data['user_id'] = Auth::id();
+        $data = $request->except('foto');
+        $data['user_id'] = Auth::id();
 
-    if ($request->hasFile('foto')) {
-        $data['foto'] = $request->file('foto')->store('products', 'public');
+        if ($request->hasFile('foto')) {
+            $data['foto'] = $request->file('foto')->store('products', 'public');
+        }
+
+        Produk::create($data);
+
+        return redirect()
+            ->route('produk')
+            ->with('success', 'Produk berhasil ditambahkan.');
     }
-
-    Produk::create($data);
-
-    return redirect()
-        ->route('produk')
-        ->with('success', 'Produk berhasil ditambahkan.');
-}
 
     public function edit(Produk $product)
     {
@@ -144,7 +147,8 @@ public function store(Request $request)
         }
 
         $data_jenis = Jenis::all(); 
-        return view('produk.edit', compact('product', 'data_jenis'));
+        $suppliers = Supplier::all(); // <-- Ambil data suplier
+        return view('produk.edit', compact('product', 'data_jenis', 'suppliers'));
     }
 
     public function update(UpdateRequest $request, $id)
@@ -156,12 +160,13 @@ public function store(Request $request)
         $product = Produk::findOrFail($id);
 
         $data = [
-            'user_id'    => Auth::id(), 
-            'jenis_id'   => $request->jenis_id,
-            'nama'       => $request->nama,
-            'harga_beli' => $request->harga_beli,
-            'harga_jual' => $request->harga_jual,
-            'stok'       => $request->stok,
+            'user_id'     => Auth::id(), 
+            'jenis_id'    => $request->jenis_id,
+            'supplier_id' => $request->supplier_id, 
+            'nama'        => $request->nama,
+            'harga_beli'  => $request->harga_beli,
+            'harga_jual'  => $request->harga_jual,
+            'stok'        => $request->stok,
         ];
 
         if ($request->hasFile('foto')) {

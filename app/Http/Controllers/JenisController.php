@@ -39,11 +39,13 @@ class JenisController extends Controller
     {
         $request->validate([
             'nama_jenis' => 'required|string|max:255|unique:jenis,nama_jenis',
+            'markup_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
         Jenis::create([
             'user_id' => Auth::id(),
             'nama_jenis' => $request->nama_jenis,
+            'markup_percentage' => $request->markup_percentage,
         ]);
 
         return redirect()->route('jenis.index')->with('success', 'Jenis produk berhasil ditambahkan!');
@@ -58,11 +60,13 @@ class JenisController extends Controller
     {
         $request->validate([
             'nama_jenis' => 'required|string|max:255|unique:jenis,nama_jenis,' . $jenis->id,
+            'markup_percentage' => 'required|numeric|min:0|max:100',
         ]);
 
         $jenis->update([
             'user_id' => Auth::id(),
             'nama_jenis' => $request->nama_jenis,
+            'markup_percentage' => $request->markup_percentage,
         ]);
 
         return redirect()->route('jenis.index')->with('success', 'Jenis produk berhasil diperbarui!');
@@ -70,7 +74,7 @@ class JenisController extends Controller
 
     public function destroy(Jenis $jenis)
     {
-        if ($jenis->produks()->count() > 0) {
+        if ($jenis->products()->count() > 0) {
             return redirect()->route('jenis.index')->with('error', 'Jenis produk tidak bisa dihapus karena masih digunakan oleh produk!');
         }
 
