@@ -133,7 +133,7 @@
         <thead>
             <tr>
                 <th style="width: 45%;">Nama Barang</th>
-                <th style="width: 15%; text-align: center;">Qty</th>
+                <th style="width: 15%; text-align: center;">Jumlah</th>
                 <th style="width: 20%; text-align: right;">Harga Satuan</th>
                 <th style="width: 20%; text-align: right;">Subtotal</th>
             </tr>

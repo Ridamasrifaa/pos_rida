@@ -15,6 +15,7 @@ return new class extends Migration
         $table->id();
         $table->foreignId('user_id')->constrained('users','id');
          $table->foreignId('jenis_id')->constrained('jenis','id');
+         $table->foreignId('supplier_id')->nullable()->constrained('suppliers', 'id')->nullOnDelete();
         $table->string('foto');
         $table->string('nama');
         $table->decimal('harga_beli', 15, 2);

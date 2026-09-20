@@ -3,18 +3,18 @@
 @section('title', 'Rekap Mingguan - POS Rida')
 
 @section('content')
-<div class="w-full max-w-6xl mx-auto space-y-6 font-sans py-6 px-4 animate-fade-in" x-data="weeklyReportApp()">
+<div class="w-full max-w-6xl mx-auto space-y-6 font-sans py-6 px-4 animate-fade-in">
 
     <!-- Header Halaman -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100 transition-all duration-300 hover:shadow-md">
         <div>
             <h1 class="text-2xl font-bold tracking-tight text-slate-800">Rekap Mingguan</h1>
-            <p class="text-sm text-slate-500 mt-0.5">Analisis omzet toko per minggu berdasarkan rentang tanggal tahun {{ $year }}.</p>
+            <p class="text-sm text-slate-600 mt-0.5">Analisis performa dan omzet toko per minggu berdasarkan rentang tanggal tahun {{ $year }}.</p>
         </div>
 
         <!-- Navigasi Tab Kotak Modern -->
         <div class="inline-flex p-1.5 bg-slate-100 rounded-2xl border border-slate-200/50 self-start sm:self-auto">
-            <a href="{{ route('admin.reports.monthly') }}" class="px-5 py-2.5 text-slate-500 hover:text-slate-800 rounded-xl text-xs font-semibold transition-all duration-200">
+            <a href="{{ route('admin.reports.monthly') }}" class="px-5 py-2.5 text-slate-600 hover:text-slate-900 rounded-xl text-xs font-semibold transition-all duration-200">
                 Bulanan
             </a>
             <a href="{{ route('admin.reports.weekly') }}" class="px-5 py-2.5 bg-white text-rose-600 rounded-xl text-xs font-bold shadow-sm transition-all duration-200">
@@ -23,16 +23,19 @@
         </div>
     </div>
 
-    <!-- Grafik Tren Omzet Mingguan -->
+    <!-- Grafik Garis Profesional -->
     <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 space-y-4 transition-all duration-300 hover:shadow-md">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="font-bold text-lg text-slate-800">Grafik Omzet Mingguan</h3>
-                <p class="text-xs text-slate-400 mt-0.5">Visualisasi naik turunnya pendapatan toko tiap minggu dalam tahun {{ $year }}</p>
+                <h3 class="font-bold text-lg text-slate-800">Mingguan</h3>
+                <p class="text-xs font-medium text-slate-500 mt-0.5">Penjualan Mingguan</p>
             </div>
+            <span class="text-xs font-semibold px-3 py-1 bg-slate-100 text-slate-600 rounded-lg">
+                Total Periode: {{ count($weeklyData) }} Minggu
+            </span>
         </div>
         <div class="relative w-full h-80">
-            <canvas id="weeklyTrendChart"></canvas>
+            <canvas id="weeklyLineChart"></canvas>
         </div>
     </div>
 
@@ -43,33 +46,33 @@
         <div class="overflow-x-auto">
             <table class="table w-full text-sm">
                 <thead>
-                    <tr class="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100">
+                    <tr class="text-slate-700 text-xs uppercase tracking-wider border-b border-slate-200 font-bold">
                         <th class="bg-transparent py-3">Minggu Ke-</th>
                         <th class="bg-transparent py-3">Periode Tanggal</th>
                         <th class="bg-transparent py-3">Jumlah Transaksi</th>
                         <th class="bg-transparent py-3">Total Omzet</th>
                     </tr>
                 </thead>
-                <tbody class="text-slate-600">
+                <tbody class="text-slate-700">
                     @foreach($weeklyData as $row)
-                        <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
-                            <td class="font-semibold text-slate-800 py-4">Minggu ke-{{ $row['week_number'] }}</td>
-                            <td class="py-4 text-xs font-medium text-slate-500">
-                                <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg">
+                        <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                            <td class="font-bold text-slate-800 py-4">Minggu ke-{{ $row['week_number'] }}</td>
+                            <td class="py-4 text-xs font-semibold text-slate-700">
+                                <span class="px-3 py-1.5 text-slate-700 rounded-lg font-bold">
                                     {{ $row['start_date'] }} – {{ $row['end_date'] }}
                                 </span>
                             </td>
                             <td class="py-4">
-                                <span class="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-xs font-medium">
+                                <span class="px-3 py-1 text-slate-700 rounded-lg text-xs font-bold ">
                                     {{ $row['total_transaksi'] }} Transaksi
                                 </span>
                             </td>
-                            <td class="font-bold text-emerald-600 py-4">Rp {{ number_format($row['total_omzet'], 0, ',', '.') }}</td>
+                            <td class="font-extrabold text-emerald-600 py-4">Rp {{ number_format($row['total_omzet'], 0, ',', '.') }}</td>
                         </tr>
                     @endforeach
-                    @if($weeklyData->isEmpty())
+                    @if(empty($weeklyData) || count($weeklyData) === 0)
                         <tr>
-                            <td colspan="4" class="text-center py-10 text-slate-400 text-xs">Belum ada data penjualan mingguan tahun ini.</td>
+                            <td colspan="4" class="text-center py-12 text-slate-500 font-medium text-xs">Belum ada data penjualan mingguan tahun ini.</td>
                         </tr>
                     @endif
                 </tbody>
@@ -79,7 +82,7 @@
 
 </div>
 
-<!-- Style Tambahan untuk Animasi Halus -->
+<!-- Style Animasi -->
 <style>
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(8px); }
@@ -90,45 +93,45 @@
     }
 </style>
 
-<!-- CDN Chart.js -->
-
+<!-- CDN Chart.js & Konfigurasi Grafik -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    function weeklyReportApp() {
-        return {}
-    }
-
     const rawWeekly = @json($weeklyData);
     
-    let weeksLabel = rawWeekly.map(item => 'Minggu ' + item.week_number);
+    let weeksLabel = rawWeekly.map(item => item.start_date);
     let weeklyOmzet = rawWeekly.map(item => item.total_omzet);
 
-    const weeklyCtx = document.getElementById('weeklyTrendChart').getContext('2d');
+    const weeklyCtx = document.getElementById('weeklyLineChart').getContext('2d');
     
-    const barGradient = weeklyCtx.createLinearGradient(0, 0, 0, 300);
-    barGradient.addColorStop(0, 'rgba(225, 29, 72, 0.9)');
-    barGradient.addColorStop(1, 'rgba(225, 29, 72, 0.4)');
+    // Gradien area di bawah garis
+    const lineGradient = weeklyCtx.createLinearGradient(0, 0, 0, 300);
+    lineGradient.addColorStop(0, 'rgba(225, 29, 72, 0.25)');
+    lineGradient.addColorStop(1, 'rgba(225, 29, 72, 0.0)');
 
     new Chart(weeklyCtx, {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: weeksLabel,
             datasets: [{
-                label: 'Omzet Mingguan',
+                label: 'Penjualan Mingguan',
                 data: weeklyOmzet,
-                backgroundColor: barGradient,
+                backgroundColor: lineGradient,
                 borderColor: 'rgba(225, 29, 72, 1)',
-                borderWidth: 1.5,
-                borderRadius: 6,
-                borderSkipped: false,
-                maxBarThickness: 32, // Membatasi lebar maksimum batang agar tetap ramping & rapi
+                borderWidth: 2.5,
+                pointBackgroundColor: '#ffffff',
+                pointBorderColor: 'rgba(225, 29, 72, 1)',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                fill: true,
+                tension: rawWeekly.length <= 2 ? 0 : 0.25 // Jika data kurang dari/sama dengan 2, gunakan garis langsung agar tidak melengkung hampa
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             layout: {
-                padding: { top: 20, bottom: 10, left: 10, right: 10 }
+                padding: { top: 15, bottom: 5, left: 5, right: 5 }
             },
             animation: {
                 duration: 1200,
@@ -144,14 +147,14 @@
                     cornerRadius: 12,
                     callbacks: {
                         title: function(context) {
-                            return 'Periode Minggu ke-' + rawWeekly[context[0].dataIndex].week_number;
+                            return 'Minggu ke-' + rawWeekly[context[0].dataIndex].week_number;
                         },
                         label: function(context) {
                             let item = rawWeekly[context.dataIndex];
                             return [
                                 ' 💰 Omzet: Rp ' + (context.raw || 0).toLocaleString('id-ID'),
                                 ' 🛒 Transaksi: ' + item.total_transaksi + ' Transaksi',
-                                ' 📅 Tgl: ' + item.start_date + ' s.d. ' + item.end_date
+                                ' 📅 Periode: ' + item.start_date + ' s.d. ' + item.end_date
                             ];
                         }
                     }
@@ -160,14 +163,14 @@
             scales: {
                 x: {
                     grid: { display: false },
-                    ticks: { color: '#64748b', font: { size: 12, weight: '600' } }
+                    ticks: { color: '#64748b', font: { size: 11, weight: '600' } }
                 },
                 y: {
                     beginAtZero: true,
                     grid: { color: '#f1f5f9', borderDash: [4, 4] },
                     ticks: {
-                        color: '#94a3b8',
-                        font: { size: 11 },
+                        color: '#64748b',
+                        font: { size: 11, weight: '500' },
                         callback: function(value) {
                             if (value === 0) return '0';
                             if (value >= 1000000) {

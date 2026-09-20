@@ -116,7 +116,7 @@
                 </div>
                 <!-- Input Harga Jual -->
                 <div>
-                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Harga Jual (Rp) <span class="text-[10px] text-rose-500 lowercase font-normal">(otomatis / bisa disesuaikan)</span></label>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Harga Jual (Rp) </label>
                     <input type="number" name="harga_jual" id="harga_jual" value="{{ old('harga_jual', intval($product->harga_jual)) }}" placeholder="Contoh: 15000" class="w-full px-4 py-2.5 rounded-xl border @error('harga_jual') border-rose-500 @else border-slate-200 @enderror bg-slate-50/50 focus:bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm">
                     @error('harga_jual')
                         <span class="text-rose-500 text-xs mt-1 block font-medium">{{ $message }}</span>

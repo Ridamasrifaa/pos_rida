@@ -100,44 +100,42 @@
             </div>
         </div>
 
-{{-- Mengubah grid jadi 4 kolom dan mengambil 8 item (2 baris x 4 kolom) --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-    @forelse($produks->take(8) as $item)
-    <div class="product-card gsap-hidden bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-rose-950/5 hover:shadow-2xl transition-all duration-300 border border-white overflow-hidden flex flex-col justify-between group card-3d">
-        <div>
-            <div class="w-full h-52 bg-slate-100 overflow-hidden relative">
-                @if(isset($item->foto) && $item->foto)
-                    <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
-                @else
-                    <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">Foto Produk</div>
-                @endif
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            @forelse($produks->take(8) as $item)
+            <div class="product-card gsap-hidden bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-rose-950/5 hover:shadow-2xl transition-all duration-300 border border-white overflow-hidden flex flex-col justify-between group card-3d">
+                <div>
+                    <div class="w-full h-52 bg-slate-100 overflow-hidden relative">
+                        @if(isset($item->foto) && $item->foto)
+                            <img src="{{ asset('storage/' . $item->foto) }}" alt="{{ $item->nama }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        @else
+                            <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">Foto Produk</div>
+                        @endif
+                    </div>
+                    <div class="p-6 space-y-3">
+                        <h3 class="font-bold text-slate-800 text-base line-clamp-1">{{ $item->nama ?? $item->nama_produk ?? 'Nama Produk' }}</h3>
+                        <div class="flex items-center justify-between">
+                            <p class="text-rose-600 font-black text-lg">Rp {{ number_format($item->harga ?? $item->harga_jual ?? 0, 0, ',', '.') }}</p>
+                            <span class="text-xs font-semibold text-slate-600">
+                                Stok: {{ $item->stok ?? 0 }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="p-6 space-y-2">
-                <h3 class="font-bold text-slate-800 text-base line-clamp-1">{{ $item->nama ?? $item->nama_produk ?? 'Nama Produk' }}</h3>
-                <p class="text-rose-600 font-black text-lg">Rp {{ number_format($item->harga ?? $item->harga_jual ?? 0, 0, ',', '.') }}</p>
+            @empty
+            <div class="col-span-full text-center py-16 bg-white/95 rounded-[2rem] border border-white shadow-xl shadow-rose-950/5">
+                <p class="text-slate-500 text-sm font-medium">Belum ada produk yang tersedia di katalog saat ini.</p>
             </div>
+            @endforelse
         </div>
-        <div class="px-6 pb-6 pt-0 flex items-center justify-between">
-            <span class="inline-block text-xs font-semibold bg-rose-50 text-rose-600 px-3.5 py-1.5 rounded-xl border border-rose-100/60">
-                Stok: {{ $item->stok ?? 0 }} Tersedia
-            </span>
-        </div>
-    </div>
-    @empty
-    <div class="col-span-full text-center py-16 bg-white/95 rounded-[2rem] border border-white shadow-xl shadow-rose-950/5">
-        <p class="text-slate-500 text-sm font-medium">Belum ada produk yang tersedia di katalog saat ini.</p>
-    </div>
-    @endforelse
-</div>
 
-{{-- Tombol Lihat Selengkapnya (Muncul jika produk lebih dari 8) --}}
-@if(isset($produks) && $produks->count() > 8)
-<div class="mt-12 text-center gsap-hidden">
-    <a href="#" class="inline-flex items-center justify-center bg-white hover:bg-rose-50 text-slate-800 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-2xl font-semibold text-sm transition-all px-8 py-3.5 shadow-sm hover:scale-[1.02] active:scale-[0.98]">
-        Lihat Selengkapnya <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
-    </a>
-</div>
-@endif
+        @if(isset($produks) && $produks->count() > 8)
+        <div class="mt-12 text-center gsap-hidden">
+            <a href="#" class="inline-flex items-center justify-center bg-white hover:bg-rose-50 text-slate-800 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-2xl font-semibold text-sm transition-all px-8 py-3.5 shadow-sm hover:scale-[1.02] active:scale-[0.98]">
+                Lihat Selengkapnya <i class="fa-solid fa-arrow-right ml-2 text-xs"></i>
+            </a>
+        </div>
+        @endif
     </section>
 
     <!-- 3. TENTANG KAMI -->
@@ -165,6 +163,12 @@
                 <p class="text-xs sm:text-sm leading-relaxed max-w-sm font-light text-slate-400">
                     Solusi belanja praktis dan modern untuk kebutuhan harian Anda. Selalu mengutamakan kualitas dan pelayanan terbaik.
                 </p>
+                
+                <!-- Alamat & Kontak di Footer -->
+                <div class="pt-2 text-xs text-slate-400 space-y-1">
+                    <p><i class="fa-solid fa-location-dot text-rose-500 mr-2"></i> Jl. Raya Tasikmalaya No. 123</p>
+                    <p><i class="fa-solid fa-envelope text-rose-500 mr-2"></i> support@tokogo.test | Telp: 0812-3456-7890</p>
+                </div>
             </div>
             <div class="footer-col space-y-2.5 gsap-hidden">
                 <h4 class="text-white font-semibold text-xs uppercase tracking-wider">Menu Utama</h4>

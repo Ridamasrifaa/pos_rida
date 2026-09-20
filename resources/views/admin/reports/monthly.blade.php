@@ -43,13 +43,13 @@
         <div class="overflow-x-auto">
             <table class="table w-full text-sm">
                 <thead>
-                    <tr class="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-100">
-                        <th class="bg-transparent py-3">Bulan</th>
-                        <th class="bg-transparent py-3">Jumlah Transaksi</th>
-                        <th class="bg-transparent py-3">Total Omzet</th>
-                        <th class="bg-transparent py-3 text-center">Aksi</th>
-                    </tr>
-                </thead>
+    <tr class="text-slate-700 text-xs uppercase tracking-wider border-b border-slate-100 font-bold">
+        <th class="bg-transparent py-3">Bulan</th>
+        <th class="bg-transparent py-3">Jumlah Transaksi</th>
+        <th class="bg-transparent py-3">Total Omzet</th>
+        <th class="bg-transparent py-3 text-center">Aksi</th>
+    </tr>
+</thead>
                 <tbody class="text-slate-600">
                     @foreach($monthlyData as $row)
                         @php
@@ -58,7 +58,7 @@
                         <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
                             <td class="font-semibold text-slate-800 py-4">{{ $namaBulan }}</td>
                             <td class="py-4">
-                                <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-medium">
+                                <span class="font-semibold text-slate-800 py-4">
                                     {{ $row->total_transaksi }} Transaksi
                                 </span>
                             </td>
