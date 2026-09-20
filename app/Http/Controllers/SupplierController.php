@@ -36,24 +36,19 @@ class SupplierController extends Controller
         return view('suppliers.create');
     }
 
-    // Menyimpan data suplier baru ke database
+   // Menyimpan data suplier baru ke database
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
+            'status' => 'required|in:aktif,non-aktif', 
         ]);
 
         Supplier::create($request->all());
 
         return redirect()->route('suppliers.index')->with('success', 'Suplier berhasil ditambahkan!');
-    }
-
-    // Menampilkan form edit suplier
-    public function edit(Supplier $supplier)
-    {
-        return view('suppliers.edit', compact('supplier'));
     }
 
     // Mengupdate data suplier
@@ -63,6 +58,7 @@ class SupplierController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
+            'status' => 'required|in:aktif,non-aktif', // <-- TAMBAHKAN VALIDASI STATUS DI SINI
         ]);
 
         $supplier->update($request->all());
@@ -70,10 +66,24 @@ class SupplierController extends Controller
         return redirect()->route('suppliers.index')->with('success', 'Data suplier berhasil diupdate!');
     }
 
+    // Menampilkan form edit suplier
+    public function edit(Supplier $supplier)
+    {
+        return view('suppliers.edit', compact('supplier'));
+    }
+
     // Menghapus data suplier
     public function destroy(Supplier $supplier)
     {
+        // Cek apakah suplier masih digunakan di tabel produks
+        if ($supplier->produks()->count() > 0) {
+            return redirect()->route('suppliers.index')
+                ->with('error', 'Suplier ini tidak dapat dihapus karena masih tercatat dalam data produk.');
+        }
+
         $supplier->delete();
+        
         return redirect()->route('suppliers.index')->with('success', 'Suplier berhasil dihapus!');
     }
+   
 }

@@ -59,6 +59,7 @@
                         <th scope="col" class="py-4 px-4">Nama Suplier / Sales</th>
                         <th scope="col" class="py-4 px-4">Nomor Telepon</th>
                         <th scope="col" class="py-4 px-4">Alamat</th>
+                        <th scope="col" class="py-4 px-4">Status</th>
                         <th scope="col" class="py-4 px-4 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -123,5 +124,85 @@
             fetchSuppliers(url);
         }
     });
+</script>
+
+<!-- Modal Konfirmasi Hapus -->
+<div id="deleteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+    <div class="bg-white w-full max-w-md mx-4 rounded-3xl shadow-2xl p-6 transform scale-95 transition-transform duration-300">
+        <div class="text-center space-y-4">
+            <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Hapus Suplier?</h3>
+                <p id="deleteModalMessage" class="text-sm text-slate-500 mt-1">Apakah Anda yakin ingin menghapus suplier ini?</p>
+            </div>
+            <div class="flex items-center justify-center gap-3 pt-2">
+                <button type="button" onclick="closeDeleteModal()" class="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition-all">
+                    Batal
+                </button>
+                <form id="deleteForm" method="POST" class="flex-1">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="w-full px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-rose-600/30 transition-all">
+                        Ya, Hapus
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Peringatan Gagal Hapus (Jika Terikat Produk) -->
+@if(session('error'))
+<div id="errorModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center">
+    <div class="bg-white w-full max-w-md mx-4 rounded-3xl shadow-2xl p-6">
+        <div class="text-center space-y-4">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto text-xl font-bold shadow-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-slate-900">Tidak Dapat Dihapus</h3>
+                <p class="text-sm text-slate-500 mt-1">{{ session('error') }}</p>
+            </div>
+            <button type="button" onclick="document.getElementById('errorModal').remove()" class="w-full px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-sm font-semibold shadow-md shadow-rose-600/30 transition-all">
+                Mengerti
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- JavaScript untuk Kontrol Modal -->
+<script>
+    function openDeleteModal(actionUrl, supplierName) {
+        const modal = document.getElementById('deleteModal');
+        const form = document.getElementById('deleteForm');
+        const message = document.getElementById('deleteModalMessage');
+
+        form.action = actionUrl;
+        message.innerHTML = `Apakah Anda yakin ingin menghapus suplier <span class="font-semibold text-slate-800">"${supplierName}"</span>?`;
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div > div').classList.remove('scale-95');
+            modal.querySelector('div > div').classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('opacity-0');
+        modal.querySelector('div > div').classList.remove('scale-100');
+        modal.querySelector('div > div').classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+        }, 300);
+    }
 </script>
 @endsection

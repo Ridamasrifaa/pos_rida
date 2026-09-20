@@ -94,7 +94,7 @@ class ProductController extends Controller
 
         return view('produk.index', compact('products'));
     }
-
+    
     public function create()
     {
         if (Auth::user()->role->name !== 'admin') {
@@ -102,9 +102,23 @@ class ProductController extends Controller
         }
 
         $data_jenis = Jenis::all(); 
-        $suppliers = Supplier::all(); // <-- Ambil data suplier
+        
+        $suppliers = Supplier::where('status', 'aktif')->orderBy('name', 'asc')->get(); 
         return view('produk.create', compact('data_jenis', 'suppliers'));
     }
+
+    public function edit(Produk $product)
+    {
+        if (Auth::user()->role->name !== 'admin') {
+            return redirect()->route('produk')->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk mengubah produk.');
+        }
+
+        $data_jenis = Jenis::all(); 
+        $suppliers = Supplier::where('status', 'aktif')->orderBy('name', 'asc')->get(); 
+
+        return view('produk.edit', compact('product', 'data_jenis', 'suppliers'));
+    }
+    
 
     public function store(Request $request)
     {
@@ -138,17 +152,6 @@ class ProductController extends Controller
         return redirect()
             ->route('produk')
             ->with('success', 'Produk berhasil ditambahkan.');
-    }
-
-    public function edit(Produk $product)
-    {
-        if (Auth::user()->role->name !== 'admin') {
-            return redirect()->route('produk')->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk mengubah produk.');
-        }
-
-        $data_jenis = Jenis::all(); 
-        $suppliers = Supplier::all(); // <-- Ambil data suplier
-        return view('produk.edit', compact('product', 'data_jenis', 'suppliers'));
     }
 
     public function update(UpdateRequest $request, $id)

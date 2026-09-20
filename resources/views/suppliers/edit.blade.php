@@ -41,6 +41,17 @@
                 @enderror
             </div>
 
+            <div class="space-y-2">
+                <label for="status" class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">Status Suplier</label>
+                <select name="status" id="status" required class="w-full px-4 py-3 bg-white border border-slate-300 rounded-2xl text-sm font-medium text-slate-800 focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 transition-all duration-200 shadow-sm">
+                    <option value="aktif" {{ old('status', $supplier->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                    <option value="non-aktif" {{ old('status', $supplier->status) == 'non-aktif' ? 'selected' : '' }}>Non-Aktif</option>
+                </select>
+                @error('status')
+                    <span class="text-xs text-rose-600 mt-1 block font-medium">{{ $message }}</span>
+                @enderror
+            </div>
+            
             <div class="flex items-center gap-3 pt-4">
                 <a href="{{ route('suppliers.index') }}" class="w-1/2 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-sm font-semibold text-center transition shadow-xs active:scale-95">
                     Batal

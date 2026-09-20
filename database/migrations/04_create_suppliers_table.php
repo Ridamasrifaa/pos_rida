@@ -12,7 +12,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');              
             $table->string('phone')->nullable();     
-            $table->text('address')->nullable();     
+            $table->text('address')->nullable();   
+            $table->enum('status', ['aktif', 'non-aktif'])->default('aktif');  
             $table->timestamps();
         });
     }

@@ -334,7 +334,7 @@
 
                         <div class="pt-1">
 
-                            <button type="button" @click="closeModal()" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold shadow-sm transition cursor-pointer">
+                            <button type="button" @click="closeModal()" class="w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold shadow-sm transition cursor-pointer">
 
                                 Mengerti
 
