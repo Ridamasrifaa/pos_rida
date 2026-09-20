@@ -59,16 +59,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/rekap-harian/pdf/{year}/{month}', [ReportController::class, 'downloadDailyPdf'])->name('daily.pdf');
     });
 
-    // --- MANAJEMEN JENIS (Khusus Admin) ---
+// --- MANAJEMEN JENIS & SUPLIER (Khusus Admin) ---
     Route::middleware(['role:admin'])->group(function () {
+        // Manajemen Jenis
         Route::resource('jenis', JenisController::class)->parameters([
             'jenis' => 'jenis',
         ]);
+
+        // Manajemen Suplier (Dipindah ke sini supaya hanya bisa diakses Admin)
+        Route::resource('suppliers', SupplierController::class);
     });
+
     Route::get('/tentang', function () {
         return view('tentang');
     })->name('tentang');
 });
+
 Route::get('/', function () {
     // Mengambil semua data produk dari database tabel produk
     $produks = App\Models\Produk::all(); 
@@ -76,5 +82,3 @@ Route::get('/', function () {
     // Menampilkan ke file view katalog.blade.php yang baru kita bikin
     return view('katalog', compact('produks'));
 });
-Route::resource('suppliers', SupplierController::class);
-
