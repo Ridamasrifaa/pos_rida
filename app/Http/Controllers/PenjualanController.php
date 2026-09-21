@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Produk;
-use Picqer\Barcode\BarcodeGeneratorPNG;
+
 
 class PenjualanController extends Controller
 {
@@ -117,10 +117,7 @@ class PenjualanController extends Controller
     {
         $penjualan = Penjualan::with(['user', 'itemPenjualans.produk'])->findOrFail($id);
 
-        $generator = new BarcodeGeneratorPNG();
-        $barcode = base64_encode($generator->getBarcode($penjualan->id, $generator::TYPE_CODE_128));
-
-        return view('penjualan.show', compact('penjualan', 'barcode'));
+        return view('penjualan.show', compact('penjualan'));
     }
 
     public function edit($id)

@@ -9,8 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> <!-- Atau gunakan script resmi tailwind v3 di bawah jika v4 error -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Library QRCode.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <style>
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-8px); }

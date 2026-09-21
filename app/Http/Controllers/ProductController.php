@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk; 
 use App\Models\Jenis;
-use App\Models\Supplier; // <-- Jangan lupa import model Supplier
+use App\Models\Supplier; 
 use Illuminate\Http\Request;
 use App\Http\Requests\Produk\StoreRequest;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +21,8 @@ class ProductController extends Controller
         $products = Produk::with('jenis', 'user', 'supplier') // <-- Load relasi supplier jika ada
             ->when($search, function ($query, $search) {
                 return $query->where('nama', 'like', "%{$search}%")
+                ->orWhere('stok', 'like', "%{$search}%") // <-- Tambahkan pencarian berdasarkan stok
+                     ->orWhere('harga_jual', 'like', "%{$search}%")
                            ->orWhereHas('jenis', function ($q) use ($search) {
                                $q->where('nama_jenis', 'like', "%{$search}%");
                            });
