@@ -23,17 +23,22 @@ class LaporanPenjualanService
         ];
     }
 
-    // Diubah menjadi akumulasi keseluruhan (All-Time) untuk produk terlaris
-    public function produkTerlarisAllTime(int $limit = 5)
+public function produkTerlarisAllTime()
     {
         return DB::table('item_penjualans')
             ->join('penjualans', 'penjualans.id', '=', 'item_penjualans.penjualans_id')
             ->join('produks', 'produks.id', '=', 'item_penjualans.produks_id')
-            ->where('penjualans.status', 'COMPLETED') // Hanya menghitung dari transaksi yang statusnya sudah selesai
-            ->select('produks.id', 'produks.nama', 'produks.stok', DB::raw('SUM(item_penjualans.kuantitas) as total_terjual'))
-            ->groupBy('produks.id', 'produks.nama', 'produks.stok')
+            ->where('penjualans.status', 'COMPLETED')
+            ->select(
+                'produks.id', 
+                'produks.nama', 
+                'produks.stok', 
+                'produks.harga_jual as harga', 
+                'produks.foto',  
+                DB::raw('SUM(item_penjualans.kuantitas) as total_terjual')
+            )
+            ->groupBy('produks.id', 'produks.nama', 'produks.stok', 'produks.harga_jual', 'produks.foto')
             ->orderByDesc('total_terjual')
-            ->limit($limit)
             ->get();
     }
 

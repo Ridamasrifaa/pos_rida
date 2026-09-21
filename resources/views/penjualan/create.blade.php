@@ -33,7 +33,6 @@
                          x-transition:enter-end="opacity-100 translate-y-0">
                         
                         <div class="flex items-center gap-3.5">
-                            <!-- Gambar Produk (Menggunakan kolom 'foto') -->
                             <img :src="product.foto ? '{{ asset('storage') }}/' + product.foto : 'https://placehold.co/100x100?text=No+Image'" 
                                  alt="Foto Produk" 
                                  class="w-16 h-16 object-cover rounded-2xl border border-slate-100 shadow-sm flex-shrink-0 bg-slate-50">
@@ -114,6 +113,19 @@
                 <!-- Bagian Pembayaran & Tombol Aksi -->
                 <div class="space-y-4 pt-4 border-t border-slate-100">
                     <div>
+                        <!-- Ringkasan Rincian Harga -->
+                        <div class="space-y-1 mb-2">
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span>Subtotal</span>
+                                <span x-text="'Rp ' + subtotalCart.toLocaleString('id-ID')"></span>
+                            </div>
+                            <!-- Informasi Diskon Otomatis 10% jika >= 1.000.000 -->
+                            <div x-show="diskon > 0" class="flex justify-between text-xs text-emerald-600 font-semibold">
+                                <span>Diskon Belanja (10%)</span>
+                                <span x-text="'- Rp ' + diskon.toLocaleString('id-ID')"></span>
+                            </div>
+                        </div>
+
                         <div class="text-xs text-slate-400 font-medium">Total Pembayaran</div>
                         <div class="text-2xl font-extrabold text-slate-800 mb-3" x-text="'Rp ' + totalBayar.toLocaleString('id-ID')"></div>
                         
@@ -121,12 +133,10 @@
                         <div class="space-y-2">
                             <label class="block text-xs font-semibold text-slate-600">Metode Pembayaran <span class="text-rose-500">*</span></label>
                             
-                            <!-- Hidden input untuk menyimpan value ke Controller -->
                             <input type="hidden" name="metode_pembayaran" x-model="metodePembayaran" required>
                             <input type="hidden" name="uang_bayar" :value="parsedUangBayar">
 
                             <div class="grid grid-cols-3 gap-2">
-                                <!-- Opsi Cash -->
                                 <button type="button" 
                                         @click="metodePembayaran = 'cash'"
                                         :class="metodePembayaran === 'cash' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
@@ -135,7 +145,6 @@
                                     Cash
                                 </button>
 
-                                <!-- Opsi QRIS -->
                                 <button type="button" 
                                         @click="metodePembayaran = 'qris'; uangBayar = ''"
                                         :class="metodePembayaran === 'qris' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
@@ -144,7 +153,6 @@
                                     QRIS
                                 </button>
 
-                                <!-- Opsi Transfer -->
                                 <button type="button" 
                                         @click="metodePembayaran = 'transfer'; uangBayar = ''"
                                         :class="metodePembayaran === 'transfer' ? 'border-rose-500 bg-rose-50/50 text-rose-600 shadow-sm' : 'border-slate-200 bg-slate-50/50 text-slate-600 hover:bg-slate-100'"
@@ -155,13 +163,12 @@
                             </div>
                         </div>
 
-                        <!-- INPUT CASH & KEMBALIAN (Muncul Otomatis Jika Pilih Cash) -->
+                        <!-- INPUT CASH & KEMBALIAN -->
                         <div x-show="metodePembayaran === 'cash'" x-collapse class="mt-4 space-y-4 p-4 bg-rose-50/50 border border-rose-100 rounded-2xl">
                             <div>
                                 <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Uang Diberikan (Rp)</label>
                                 <input type="text" inputmode="numeric" x-model="uangBayar" placeholder="Contoh: 50000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-rose-600 focus:ring-2 focus:ring-rose-600/20 text-sm text-slate-800 transition shadow-sm font-semibold">
                                 
-                                <!-- Peringatan jika uang kurang -->
                                 <span x-show="parsedUangBayar > 0 && parsedUangBayar < totalBayar" class="text-xs text-rose-500 font-bold mt-1 block">
                                     Uang bayar kurang Rp <span x-text="(totalBayar - parsedUangBayar).toLocaleString('id-ID')"></span>!
                                 </span>
@@ -177,20 +184,16 @@
                         </div>
                     </div>
 
-                    <!-- Input tersembunyi yang dikirim ke Controller -->
                     <input type="hidden" name="total_pembayaran" x-model="totalBayar">
                     <input type="hidden" name="items" x-model="JSON.stringify(cart)">
                     <input type="hidden" name="status" x-model="statusTransaksi">
 
-                    <!-- Tombol Aksi dengan Loading State & Validasi Metode Pembayaran -->
                     <div class="grid grid-cols-2 gap-3 mt-4">
-                        <!-- Tombol Simpan Draft -->
                         <button type="submit" @click="statusTransaksi = 'OPEN'" :disabled="cart.length === 0 || !metodePembayaran || isSubmitting" class="w-full py-3.5 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-amber-100 transition flex items-center justify-center gap-2 transform active:scale-95">
                             <span x-show="isSubmitting && statusTransaksi === 'OPEN'" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                             <span x-text="isSubmitting && statusTransaksi === 'OPEN' ? 'Memproses...' : 'Simpan Draft'"></span>
                         </button>
 
-                        <!-- Tombol Checkout -->
                         <button type="submit" @click="statusTransaksi = 'COMPLETED'" :disabled="cart.length === 0 || !metodePembayaran || isSubmitting || (metodePembayaran === 'cash' && parsedUangBayar < totalBayar)" class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-100 disabled:text-slate-400 text-white rounded-2xl font-bold text-sm shadow-sm shadow-emerald-100 transition flex items-center justify-center gap-2 transform active:scale-95">
                             <span x-show="isSubmitting && statusTransaksi === 'COMPLETED'" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                             <span x-text="isSubmitting && statusTransaksi === 'COMPLETED' ? 'Memproses...' : 'Checkout'"></span>
@@ -238,7 +241,7 @@
     </template>
 </div>
 
-<!-- Script Alpine.js (Ditambah plugin collapse) -->
+<!-- Script Alpine.js -->
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -267,7 +270,6 @@
                 return this.products.filter(p => p.nama.toLowerCase().includes(this.search.toLowerCase()));
             },
 
-            // Konversi aman: Menghapus titik/koma agar "50.000" dibaca jadi 50000
             get parsedUangBayar() {
                 if (!this.uangBayar) return 0;
                 let cleanValue = String(this.uangBayar).replace(/\./g, '').replace(/,/g, '');
@@ -275,7 +277,6 @@
                 return isNaN(val) ? 0 : val;
             },
 
-            // Logika Kembalian
             get kembalian() {
                 if (this.parsedUangBayar < this.totalBayar) return 0;
                 return this.parsedUangBayar - this.totalBayar;
@@ -328,8 +329,22 @@
                 }
             },
 
-            get totalBayar() {
+            // Hitung subtotal sebelum diskon
+            get subtotalCart() {
                 return this.cart.reduce((sum, item) => sum + (item.harga_jual * item.qty), 0);
+            },
+
+            // Diskon 10% otomatis jika subtotal mencapai >= 1.000.000
+            get diskon() {
+                if (this.subtotalCart >= 1000000) {
+                    return this.subtotalCart * 0.10;
+                }
+                return 0;
+            },
+
+            // Total bayar akhir setelah dipotong diskon
+            get totalBayar() {
+                return this.subtotalCart - this.diskon;
             }
         }
     }

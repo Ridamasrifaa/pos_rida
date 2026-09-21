@@ -9,6 +9,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
+use App\Services\LaporanPenjualanService;
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'index'])->name('login');
@@ -80,5 +81,12 @@ Route::get('/', function () {
     $produks = App\Models\Produk::all(); 
     
     // Menampilkan ke file view katalog.blade.php yang baru kita bikin
+    return view('katalog', compact('produks'));
+});
+Route::get('/', function (LaporanPenjualanService $laporanService) {
+    // Mengambil produk terurut dari service penjualan (sama persis dengan dasbor)
+    $produks = $laporanService->produkTerlarisAllTime(); 
+    
+    // Menampilkan ke file view katalog.blade.php
     return view('katalog', compact('produks'));
 });

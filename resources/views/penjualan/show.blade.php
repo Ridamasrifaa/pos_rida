@@ -43,6 +43,12 @@
             </div>
         </div>
 
+        <!-- KARTU BARCODE DI HALAMAN WEB -->
+        <div class="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100 flex flex-col items-center justify-center space-y-2">
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Barcode Transaksi</span>
+             <img src="{{ asset('images/barcode.png') }}" alt="Foto Rida Masrifa" class="h-30 object-contain>
+        </div>
+
         <div>
             <h3 class="font-bold text-lg text-slate-800 mb-3">Daftar Barang Dibeli</h3>
             <div class="overflow-x-auto border border-slate-100 rounded-2xl">
@@ -103,7 +109,7 @@
 
 
     <!-- ========================================== -->
-    <!-- FORMAT STRUK KASIR PROFESIONAL (BERSIH)    -->
+    <!-- FORMAT STRUK KASIR PROFESIONAL (THERMAL)   -->
     <!-- ========================================== -->
     <div id="thermal-receipt" class="hidden">
         <div class="store-name">TOKO GO</div>
@@ -114,6 +120,14 @@
             <div>Waktu    : {{ $penjualan->created_at->format('d/m/Y H:i') }}</div>
             <div>Kasir    : {{ $penjualan->user->name ?? 'Admin' }}</div>
             <div>Metode   : <span style="text-transform: uppercase;">{{ $penjualan->metode_pembayaran }}</span></div>
+        </div>
+
+        <div class="dashed-line">-------------------------------------</div>
+
+        <!-- BARCODE DI STRUK THERMAL -->
+        <div class="receipt-barcode">
+            <img src="data:image/png;base64,{{ $barcode }}" alt="Barcode">
+            <div style="font-size: 9px; letter-spacing: 1px; margin-top: 2px;">TRX-{{ str_pad($penjualan->id, 5, '0', STR_PAD_LEFT) }}</div>
         </div>
 
         <div class="dashed-line">-------------------------------------</div>
@@ -210,6 +224,16 @@
         font-size: 10px;
         letter-spacing: -1px;
         margin: 3px 0;
+    }
+    .receipt-barcode {
+        text-align: center;
+        margin: 4px 0;
+    }
+    .receipt-barcode img {
+        height: 35px;
+        max-width: 100%;
+        margin: 0 auto;
+        display: block;
     }
     .item-table {
         width: 100%;

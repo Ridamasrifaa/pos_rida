@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Models\Produk;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class PenjualanController extends Controller
 {
@@ -16,31 +17,27 @@ class PenjualanController extends Controller
         $search = $request->input('search');
         $user = auth()->user();
         
-        // Ambil nama role user (sesuaikan dengan struktur database Anda)
         $userRole = $user->role ? strtoupper($user->role->name) : '';
 
         $query = Penjualan::with('user');
 
-        // Jika bukan Admin (misal: Kasir), batasi hanya transaksi miliknya sendiri
         if ($userRole !== 'ADMIN') {
             $query->where('user_id', $user->id);
         }
 
-        // Filter pencarian (Search)
         $penjualans = $query->when($search, function ($q, $search) {
                 $q->where(function ($subQuery) use ($search) {
                     $subQuery->where('id', 'like', "%{$search}%")
-                             ->orWhere('status', 'like', "%{$search}%")
-                             ->orWhere('metode_pembayaran', 'like', "%{$search}%")
-                             ->orWhereHas('user', function ($userQuery) use ($search) {
-                                 $userQuery->where('name', 'like', "%{$search}%");
-                             });
+                           ->orWhere('status', 'like', "%{$search}%")
+                           ->orWhere('metode_pembayaran', 'like', "%{$search}%")
+                           ->orWhereHas('user', function ($userQuery) use ($search) {
+                               $userQuery->where('name', 'like', "%{$search}%");
+                           });
                 });
             })
             ->latest()
             ->paginate(10);
 
-        // Cek apakah ini permintaan AJAX dari Javascript fetch
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'html' => view('penjualan.partials.table-rows', compact('penjualans'))->render(),
@@ -63,7 +60,7 @@ class PenjualanController extends Controller
         $request->validate([
             'metode_pembayaran' => 'required',
             'total_pembayaran' => 'required|numeric',
-            'uang_bayar' => 'nullable|numeric', // Validasi uang bayar
+            'uang_bayar' => 'nullable|numeric',
             'items' => 'required',
         ]);
 
@@ -73,18 +70,24 @@ class PenjualanController extends Controller
             return redirect()->back()->with('error', 'Keranjang masih kosong!');
         }
 
+        // Hitung subtotal dan diskon 10% jika >= 1.000.000 di backend (keamanan data)
+        $subtotal = collect($items)->sum(function ($item) {
+            return $item['harga_jual'] * $item['qty'];
+        });
+
+        $diskon = $subtotal >= 1000000 ? $subtotal * 0.10 : 0;
+        $calculatedTotal = $subtotal - $diskon;
+
         DB::beginTransaction();
         try {
-            // 1. Simpan data utama ke tabel penjualans (Termasuk uang_bayar)
             $penjualan = Penjualan::create([
                 'user_id' => auth()->id(),
-                'total_pembayaran' => $request->total_pembayaran,
-                'uang_bayar' => $request->uang_bayar ?? 0, // <-- Diperbaiki agar tersimpan
+                'total_pembayaran' => $calculatedTotal,
+                'uang_bayar' => $request->uang_bayar ?? 0,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status' => $request->status,
             ]);
 
-            // 2. Simpan item barang & kurangi stok produk
             foreach ($items as $item) {
                 ItemPenjualan::create([
                     'penjualans_id' => $penjualan->id,
@@ -94,7 +97,6 @@ class PenjualanController extends Controller
                     'subtotal' => $item['harga_jual'] * $item['qty'], 
                 ]);
 
-                // Kurangi stok produk secara otomatis
                 $produk = Produk::find($item['id']);
                 if ($produk) {
                     $produk->stok -= $item['qty'];
@@ -113,8 +115,12 @@ class PenjualanController extends Controller
 
     public function show($id)
     {
-        $penjualan = Penjualan::with(['user', 'itemPenjualans'])->findOrFail($id);
-        return view('penjualan.show', compact('penjualan'));
+        $penjualan = Penjualan::with(['user', 'itemPenjualans.produk'])->findOrFail($id);
+
+        $generator = new BarcodeGeneratorPNG();
+        $barcode = base64_encode($generator->getBarcode($penjualan->id, $generator::TYPE_CODE_128));
+
+        return view('penjualan.show', compact('penjualan', 'barcode'));
     }
 
     public function edit($id)
@@ -151,11 +157,18 @@ class PenjualanController extends Controller
             return redirect()->back()->with('error', 'Keranjang item tidak boleh kosong!');
         }
 
+        // Hitung ulang diskon di backend untuk update
+        $subtotal = collect($items)->sum(function ($item) {
+            return $item['harga_jual'] * $item['qty'];
+        });
+
+        $diskon = $subtotal >= 1000000 ? $subtotal * 0.10 : 0;
+        $calculatedTotal = $subtotal - $diskon;
+
         DB::beginTransaction();
         try {
             $penjualan = Penjualan::with('itemPenjualans')->findOrFail($id);
             
-            // 1. Kembalikan stok lama terlebih dahulu
             foreach ($penjualan->itemPenjualans as $oldItem) {
                 $produk = Produk::find($oldItem->produks_id);
                 if ($produk) {
@@ -164,18 +177,15 @@ class PenjualanController extends Controller
                 }
             }
 
-            // 2. Hapus item lama
             $penjualan->itemPenjualans()->delete();
 
-            // 3. Update data utama penjualan (Termasuk uang_bayar)
             $penjualan->update([
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'status' => $request->status,
-                'total_pembayaran' => $request->total_pembayaran,
-                'uang_bayar' => $request->uang_bayar ?? 0, // <-- Diperbaiki agar terupdate
+                'total_pembayaran' => $calculatedTotal,
+                'uang_bayar' => $request->uang_bayar ?? 0,
             ]);
 
-            // 4. Masukkan item baru & kurangi stok produk yang baru
             foreach ($items as $item) {
                 ItemPenjualan::create([
                     'penjualans_id' => $penjualan->id,
@@ -212,7 +222,6 @@ class PenjualanController extends Controller
 
         DB::beginTransaction();
         try {
-            // Kembalikan stok produk terlebih dahulu sebelum item dihapus
             foreach ($penjualan->itemPenjualans as $item) {
                 $produk = Produk::find($item->produks_id);
                 if ($produk) {
@@ -221,10 +230,7 @@ class PenjualanController extends Controller
                 }
             }
 
-            // Hapus item-item penjualan
             $penjualan->itemPenjualans()->delete();
-
-            // Hapus data utama penjualan
             $penjualan->delete();
 
             DB::commit();

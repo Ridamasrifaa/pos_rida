@@ -95,14 +95,22 @@
     <section id="katalog" class="katalog-section max-w-7xl mx-auto px-6 py-24 relative z-10">
         <div class="katalog-header flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-2 gsap-hidden">
             <div>
-                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Katalog Produk Pilihan</h2>
-                <p class="text-slate-500 text-xs sm:text-sm mt-1.5 font-medium">Pilih produk favorit Anda yang tersedia hari ini.</p>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Katalog Produk Favorit</h2>
+                <p class="text-slate-500 text-xs sm:text-sm mt-1.5 font-medium">Pilih produk terlaris dan favorit pilihan pelanggan kami hari ini.</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            @forelse($produks->take(8) as $item)
-            <div class="product-card gsap-hidden bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-rose-950/5 hover:shadow-2xl transition-all duration-300 border border-white overflow-hidden flex flex-col justify-between group card-3d">
+            @forelse($produks->take(8) as $index => $item)
+            <div class="product-card gsap-hidden bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-xl shadow-rose-950/5 hover:shadow-2xl transition-all duration-300 border border-white overflow-hidden flex flex-col justify-between group card-3d relative">
+                
+             @if($index === 0)
+<div class="absolute top-4 left-4 z-20 bg-amber-400 text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5">
+    <i class="fa-solid fa-star text-xs"></i>
+    <span>BEST SELLER</span>
+</div>
+@endif
+
                 <div>
                     <div class="w-full h-52 bg-slate-100 overflow-hidden relative">
                         @if(isset($item->foto) && $item->foto)
@@ -119,6 +127,13 @@
                                 Stok: {{ $item->stok ?? 0 }}
                             </span>
                         </div>
+                        
+                        @if(isset($item->total_terjual))
+                        <div class="text-xs text-slate-500 font-medium pt-2 border-t border-slate-100 flex items-center justify-between">
+                            <span>Total Terjual:</span>
+                            <span class="font-bold text-slate-700">{{ $item->total_terjual }} Unit</span>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -261,7 +276,7 @@
             gsap.fromTo(".footer-bottom",
                 { opacity: 0 },
                 {
-                    opacity: 1, duration: 1, delay: 0.5, ease: "power2.out",
+                    y: 0, opacity: 1, duration: 1, delay: 0.5, ease: "power2.out",
                     scrollTrigger: { trigger: ".footer-section", start: "top 95%" }
                 }
             );
